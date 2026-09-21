@@ -1,0 +1,36 @@
+:root {
+  color-scheme: light;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #f6f7fb;
+  color: #172033;
+}
+
+* { box-sizing: border-box; }
+body { width: 430px; margin: 0; background: #f6f7fb; }
+.shell { padding: 18px; }
+header, .section-heading, footer, .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.eyebrow { margin: 0 0 3px; color: #5367d9; font-size: 10px; font-weight: 800; letter-spacing: .12em; }
+h1 { margin: 0; font-size: 18px; line-height: 1.2; }
+h2 { margin: 0; font-size: 14px; }
+.lock { border-radius: 999px; background: #e8f7ee; color: #207547; padding: 6px 8px; font-size: 10px; font-weight: 700; white-space: nowrap; }
+.notice { display: grid; gap: 3px; margin: 16px 0 12px; padding: 11px 12px; border: 1px solid #dbe0f6; border-radius: 10px; background: #fff; font-size: 12px; }
+.notice span, .status, footer { color: #667085; }
+button { border: 0; border-radius: 8px; cursor: pointer; font: inherit; font-size: 12px; font-weight: 700; }
+button:disabled { opacity: .45; cursor: not-allowed; }
+.primary { background: #5367d9; color: #fff; padding: 10px 12px; }
+.secondary { background: #e9ebf3; color: #283455; padding: 10px 12px; }
+.full { width: 100%; margin-top: 12px; }
+.text-button { background: transparent; color: #5367d9; padding: 4px; font-size: 11px; }
+.status { min-height: 18px; margin: 12px 0; font-size: 12px; }
+.page-summary { margin: 8px 0 14px; padding: 10px 12px; border-radius: 8px; background: #fff; font-size: 11px; line-height: 1.45; }
+.fields { display: grid; gap: 8px; margin-top: 10px; max-height: 310px; overflow: auto; }
+.field { display: grid; grid-template-columns: 20px 1fr; gap: 8px; padding: 10px; border: 1px solid #e1e5ee; border-radius: 9px; background: #fff; }
+.field.sensitive { border-left: 3px solid #da7a2e; }
+.field label { display: block; font-size: 12px; font-weight: 700; }
+.field .meta { margin-top: 3px; color: #667085; font-size: 10px; }
+.field input[type="text"] { width: 100%; margin-top: 7px; padding: 7px; border: 1px solid #d7dce8; border-radius: 6px; font: inherit; font-size: 11px; }
+.field input[type="checkbox"] { margin-top: 2px; accent-color: #5367d9; }
+.warning { color: #a85c17; }
+footer { margin-top: 16px; font-size: 10px; }
+footer a { color: #5367d9; text-decoration: none; }
+.hidden { display: none !important; }

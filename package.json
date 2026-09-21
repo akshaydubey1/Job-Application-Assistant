@@ -1,0 +1,10 @@
+{
+  "name": "job-application-assistant-extension",
+  "private": true,
+  "version": "0.4.0",
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "public-scan": "node scripts/public-scan.mjs"
+  }
+}

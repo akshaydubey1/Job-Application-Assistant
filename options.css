@@ -1,0 +1,35 @@
+:root { font-family: Inter, ui-sans-serif, system-ui, sans-serif; color: #172033; background: #f6f7fb; }
+body { margin: 0; }
+main { width: min(900px, calc(100% - 40px)); margin: 40px auto; }
+.eyebrow { color: #5367d9; font-size: 11px; font-weight: 800; letter-spacing: .12em; }
+h1 { margin: 0; font-size: 28px; }
+header p:last-child { color: #667085; }
+.actions { display: flex; gap: 10px; margin: 24px 0 14px; flex-wrap: wrap; }
+button { border: 0; border-radius: 8px; cursor: pointer; padding: 10px 14px; font: inherit; font-weight: 700; }
+.primary { color: #fff; background: #5367d9; }
+.secondary { color: #283455; background: #e9ebf3; }
+label { display: block; margin: 10px 0 6px; font-size: 13px; font-weight: 700; }
+textarea { width: 100%; min-height: 520px; padding: 14px; border: 1px solid #d7dce8; border-radius: 10px; background: #fff; color: #172033; font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; }
+.status { min-height: 20px; color: #207547; }
+.guardrails { margin-top: 28px; padding: 16px; border: 1px solid #dbe0f6; border-radius: 10px; background: #fff; }
+.guardrails h2 { margin-top: 0; font-size: 16px; }
+.guardrails li { margin: 8px 0; color: #475467; }
+.resume-import { margin: 28px 0; padding: 18px; border: 1px solid #dbe0f6; border-radius: 10px; background: #fff; }
+.resume-import h2 { margin: 0; font-size: 18px; }
+.resume-import p { color: #667085; font-size: 13px; }
+.import-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.import-row input[type=file] { max-width: 100%; }
+.url-input { width: min(520px, 100%); padding: 9px; border: 1px solid #d7dce8; border-radius: 7px; font: inherit; }
+.proposal { min-height: 260px; }
+.question-bank, .responsibility { margin: 28px 0; padding: 18px; border: 1px solid #dbe0f6; border-radius: 10px; background: #fff; }
+.question-bank h2, .responsibility h2 { margin: 0; font-size: 18px; }
+.question-bank p, .responsibility p { color: #667085; font-size: 13px; line-height: 1.5; }
+.question-item { margin: 12px 0; padding: 12px; border: 1px solid #e1e5ee; border-radius: 8px; }
+.question-prompt { font-weight: 700; font-size: 13px; }
+.question-meta { margin: 4px 0 8px; color: #667085; font-size: 11px; }
+.question-item textarea { min-height: 90px; width: 100%; padding: 9px; border: 1px solid #d7dce8; border-radius: 7px; font: inherit; }
+.question-item.sensitive { border-left: 3px solid #da7a2e; }
+.question-actions { display: flex; justify-content: flex-end; margin-top: 7px; }
+.forget-button { border: 0; background: transparent; color: #b42318; cursor: pointer; font: inherit; font-size: 11px; }
+.ack-label { display: flex; gap: 8px; align-items: flex-start; margin: 12px 0; font-weight: 400; line-height: 1.4; }
+.ack-label input { margin-top: 3px; accent-color: #5367d9; }

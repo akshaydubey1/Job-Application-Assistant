@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Job Application Assistant</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header>
+        <div>
+          <p class="eyebrow">LOCAL-FIRST</p>
+          <h1>Job Application Assistant</h1>
+        </div>
+        <span class="lock" title="No automatic submission">Approval required</span>
+      </header>
+
+      <section class="notice">
+        <strong>Review before filling</strong>
+        <span>Nothing is submitted. Sensitive values are highlighted.</span>
+      </section>
+
+      <section class="toolbar">
+        <button id="scanButton" class="primary">Scan current page</button>
+        <button id="optionsButton" class="secondary">Profile</button>
+      </section>
+
+      <p id="status" class="status">Ready. Add your approved profile, then scan an application page.</p>
+      <div id="pageSummary" class="page-summary hidden"></div>
+      <section id="fieldsSection" class="hidden">
+        <div class="section-heading">
+          <h2>Suggested fields</h2>
+          <button id="selectReadyButton" class="text-button">Select ready</button>
+        </div>
+        <div id="fields" class="fields"></div>
+        <button id="fillButton" class="primary full" disabled>Fill selected fields</button>
+      </section>
+
+      <footer>
+        <span id="profileState">Profile: not loaded</span>
+        <a href="README.md" target="_blank">Privacy & limits</a>
+      </footer>
+    </main>
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>

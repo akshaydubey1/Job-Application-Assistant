@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "Job Application Assistant",
+  "version": "0.4.0",
+  "description": "Review-first assistant for mapping an approved profile to visible job-application fields.",
+  "action": {
+    "default_title": "Job Application Assistant",
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "options_page": "options.html",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage"
+  ],
+  "host_permissions": [
+    "http://127.0.0.1:8765/*",
+    "http://localhost:8765/*"
+  ]
+}

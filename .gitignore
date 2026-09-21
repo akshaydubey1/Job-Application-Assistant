@@ -1,0 +1,16 @@
+node_modules/
+dist/
+build/
+__pycache__/
+*.zip
+profile.json
+.env
+.env.*
+.venv/
+venv/
+uploads/
+resumes/
+*.pem
+*.key
+*.p12
+*.pfx

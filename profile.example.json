@@ -1,0 +1,43 @@
+{
+  "identity": {
+    "fullName": "Your full name",
+    "firstName": "Your first name",
+    "lastName": "Your last name"
+  },
+  "contact": {
+    "email": "you@example.com",
+    "phone": "+1 555 555 5555"
+  },
+  "location": {
+    "address": "",
+    "city": "Dallas",
+    "state": "TX",
+    "zip": ""
+  },
+  "links": {
+    "linkedin": "https://www.linkedin.com/in/your-profile",
+    "github": "https://github.com/your-profile",
+    "portfolio": ""
+  },
+  "workAuthorization": {
+    "authorized": "Yes",
+    "sponsorship": "Requires review before answering"
+  },
+  "preferences": {
+    "relocate": "Requires review before answering",
+    "salary": "Requires review before answering"
+  },
+  "education": {
+    "degree": "Master's in Computer Science",
+    "school": "Troy University",
+    "graduationYear": ""
+  },
+  "answers": {
+    "coverLetter": "",
+    "whyRole": ""
+  },
+  "metadata": {
+    "source": "user-entered",
+    "lastReviewed": "YYYY-MM-DD"
+  }
+}
