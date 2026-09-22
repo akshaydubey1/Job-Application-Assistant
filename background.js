@@ -1,7 +1,11 @@
 /*
- * The service worker only brokers user-initiated scans and fills.
+ * The service worker brokers review-first scans and fills.
  * No page data is sent to a remote service in this MVP.
  */
+
+chrome.runtime.onInstalled.addListener(({ reason }) => {
+  if (reason === "install") chrome.runtime.openOptionsPage();
+});
 
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (message?.type === "scanActiveTab") {

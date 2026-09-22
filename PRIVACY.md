@@ -37,10 +37,19 @@ service and does not transmit the file to the developer.
 
 ## Page access and form filling
 
-The extension reads the active page only after the user chooses to scan it. It
-shows proposed mappings for review and fills only fields the user selects. It
-does not submit applications, bypass CAPTCHA, automate file uploads, or make
-employment-eligibility decisions.
+The extension reads the visible form controls on the current page when the
+user opens the extension with automatic assistance enabled or chooses a manual
+scan. Chrome's `activeTab` model limits this access to the current tab after
+the user invokes the extension; the extension does not passively inspect every
+tab. It stores unfamiliar question prompts and limited metadata locally so the
+user can add an approved answer later. It does not save a screen capture or
+the entire page.
+
+With automatic assistance enabled, only approved, non-high-risk profile
+values are filled automatically. Sponsorship, work authorization, salary,
+relocation, demographic, and other sensitive question-bank answers remain
+manual. The extension does not submit applications, bypass CAPTCHA, automate
+file uploads, or make employment-eligibility decisions.
 
 ## Sharing and selling
 

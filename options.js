@@ -6,18 +6,33 @@ const editor = document.getElementById("profileEditor");
 const status = document.getElementById("status");
 const proposalEditor = document.getElementById("proposalEditor");
 const extractStatus = document.getElementById("extractStatus");
+const proposalSummary = document.getElementById("proposalSummary");
+const autoAssistCheckbox = document.getElementById("autoAssistCheckbox");
+const automationStatus = document.getElementById("automationStatus");
 let questionBank = [];
 
 document.addEventListener("DOMContentLoaded", async () => {
-  const saved = await chrome.storage.local.get(["profile", "questionBank", "responsibilityAck"]);
+  const saved = await chrome.storage.local.get(["profile", "questionBank", "responsibilityAck", "automationSettings"]);
   editor.value = JSON.stringify(saved.profile || defaultProfile, null, 2);
   questionBank = saved.questionBank || [];
+  autoAssistCheckbox.checked = saved.automationSettings?.autoAssist !== false;
+  setAutomationStatus(autoAssistCheckbox.checked
+    ? "Automatic scan and filling is on for approved, non-high-risk fields."
+    : "Automatic scan and filling is off. You can still scan manually from the extension popup.");
   renderQuestionBank();
   if (saved.responsibilityAck?.acknowledged) {
     document.getElementById("ackCheckbox").checked = true;
     document.getElementById("signatureInput").value = saved.responsibilityAck.signature || "";
     setAckStatus(`Acknowledged on ${new Date(saved.responsibilityAck.signedAt).toLocaleString()}.`);
   }
+});
+
+autoAssistCheckbox.addEventListener("change", async () => {
+  const autoAssist = autoAssistCheckbox.checked;
+  await chrome.storage.local.set({ automationSettings: { autoAssist } });
+  setAutomationStatus(autoAssist
+    ? "Automatic scan and filling is on for approved, non-high-risk fields."
+    : "Automatic scan and filling is off. You can still scan manually from the extension popup.");
 });
 
 document.getElementById("saveButton").addEventListener("click", async () => {
@@ -72,8 +87,11 @@ async function extractResume() {
       result = await extractWithLocalParser(file);
     }
     proposalEditor.value = JSON.stringify(result.profile, null, 2);
+    renderProposalSummary(result);
     const factCount = result.facts?.length || 0;
-    setExtractStatus(`Extracted ${factCount} proposed fact(s). Review the proposal before approving it.`);
+    setExtractStatus(factCount
+      ? `Found ${factCount} detail(s). Review them below, then approve the details you want to keep.`
+      : "The file was read. Review the proposed profile below before approving it.");
   } catch (error) {
     setExtractStatus(error.message, true);
   }
@@ -102,10 +120,76 @@ async function approveProposal() {
     const merged = deepMerge(current, proposal);
     editor.value = JSON.stringify(merged, null, 2);
     await chrome.storage.local.set({ profile: merged });
-    setExtractStatus("Proposal approved and saved locally. Review the Profile JSON before applying to a job.");
+    setExtractStatus("Approved details saved locally. You can now open ApplyPilot on an application page.");
   } catch (error) {
     setExtractStatus(`Proposal is not valid JSON: ${error.message}`, true);
   }
+}
+
+function renderProposalSummary(result) {
+  proposalSummary.replaceChildren();
+  const facts = result.facts?.length ? result.facts : flattenProfile(result.profile);
+  if (!facts.length) {
+    const empty = document.createElement("p");
+    empty.textContent = "No profile details were found. You can add or edit them under Advanced settings.";
+    proposalSummary.append(empty);
+    return;
+  }
+
+  const heading = document.createElement("p");
+  heading.innerHTML = `<strong>${facts.length} detail(s) found</strong> — these are suggestions until you approve them.`;
+  proposalSummary.append(heading);
+  facts.slice(0, 40).forEach((item) => {
+    const row = document.createElement("div");
+    row.className = "proposal-fact";
+    const label = document.createElement("strong");
+    label.textContent = friendlyLabel(item.path);
+    const value = document.createElement("span");
+    value.textContent = item.value || "Not found";
+    row.append(label, value);
+    proposalSummary.append(row);
+  });
+  if (facts.length > 40) {
+    const more = document.createElement("p");
+    more.textContent = `${facts.length - 40} more detail(s) are available in Advanced settings.`;
+    proposalSummary.append(more);
+  }
+}
+
+function flattenProfile(profile = {}, prefix = "") {
+  return Object.entries(profile).flatMap(([key, value]) => {
+    const path = prefix ? `${prefix}.${key}` : key;
+    if (value && typeof value === "object" && !Array.isArray(value)) return flattenProfile(value, path);
+    return value === undefined || value === null || String(value).trim() === ""
+      ? []
+      : [{ path, value: String(value) }];
+  });
+}
+
+function friendlyLabel(path = "") {
+  const labels = {
+    "identity.fullName": "Full name",
+    "identity.firstName": "First name",
+    "identity.lastName": "Last name",
+    "contact.email": "Email",
+    "contact.phone": "Phone",
+    "location.address": "Address",
+    "location.city": "City",
+    "location.state": "State",
+    "location.zip": "ZIP / postal code",
+    "links.linkedin": "LinkedIn",
+    "links.github": "GitHub",
+    "links.portfolio": "Portfolio",
+    "education.degree": "Degree",
+    "education.school": "School",
+    "education.graduationYear": "Graduation year",
+    "experience.currentEmployer": "Current employer",
+    "experience.currentTitle": "Current title",
+    "experience.years": "Years of experience",
+    "resume.skills": "Skills"
+  };
+  if (labels[path]) return labels[path];
+  return path.split(".").at(-1).replace(/([a-z])([A-Z])/g, "$1 $2").replace(/^./, (letter) => letter.toUpperCase());
 }
 
 function deepMerge(base, update) {
@@ -118,6 +202,11 @@ function deepMerge(base, update) {
 function setExtractStatus(message, error = false) {
   extractStatus.textContent = message;
   extractStatus.style.color = error ? "#b42318" : "#667085";
+}
+
+function setAutomationStatus(message, error = false) {
+  automationStatus.textContent = message;
+  automationStatus.style.color = error ? "#b42318" : "#207547";
 }
 
 function renderQuestionBank() {

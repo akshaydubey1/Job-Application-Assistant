@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800">
+  <rect width="1280" height="800" fill="#dfe3ee"/>
+  <rect x="30" y="28" width="1220" height="744" rx="16" fill="#fff"/>
+  <rect x="30" y="28" width="1220" height="48" rx="16" fill="#f4f5f9"/>
+  <circle cx="61" cy="52" r="7" fill="#d0d5df"/><circle cx="84" cy="52" r="7" fill="#d0d5df"/><circle cx="107" cy="52" r="7" fill="#d0d5df"/>
+  <rect x="153" y="42" width="750" height="20" rx="10" fill="#fff" stroke="#e1e5ee"/>
+  <text x="180" y="56" fill="#98a2b3" font-family="Arial, sans-serif" font-size="11">careers.example.com/apply/software-engineer</text>
+  <rect x="30" y="76" width="760" height="696" fill="#fff"/>
+  <text x="80" y="138" fill="#172033" font-family="Arial, sans-serif" font-size="30" font-weight="700">Software Engineer</text>
+  <text x="80" y="172" fill="#667085" font-family="Arial, sans-serif" font-size="16">Example Technologies · Austin, TX</text>
+  <text x="80" y="240" fill="#172033" font-family="Arial, sans-serif" font-size="18" font-weight="700">Your application</text>
+  <text x="80" y="284" fill="#475467" font-family="Arial, sans-serif" font-size="13">First name</text>
+  <rect x="80" y="296" width="280" height="42" rx="7" fill="#fff" stroke="#d7dce8"/>
+  <text x="96" y="322" fill="#172033" font-family="Arial, sans-serif" font-size="13">Jordan</text>
+  <text x="80" y="376" fill="#475467" font-family="Arial, sans-serif" font-size="13">Email address</text>
+  <rect x="80" y="388" width="440" height="42" rx="7" fill="#fff" stroke="#d7dce8"/>
+  <text x="96" y="414" fill="#172033" font-family="Arial, sans-serif" font-size="13">name@example.com</text>
+  <text x="80" y="468" fill="#475467" font-family="Arial, sans-serif" font-size="13">LinkedIn profile</text>
+  <rect x="80" y="480" width="440" height="42" rx="7" fill="#fff" stroke="#d7dce8"/>
+  <text x="96" y="506" fill="#667085" font-family="Arial, sans-serif" font-size="13">https://linkedin.com/in/your-profile</text>
+  <rect x="80" y="580" width="210" height="44" rx="8" fill="#5367d9"/>
+  <text x="185" y="608" fill="#fff" font-family="Arial, sans-serif" font-size="13" font-weight="700" text-anchor="middle">Continue application</text>
+  <rect x="814" y="98" width="408" height="590" rx="14" fill="#f6f7fb" stroke="#dbe0f6"/>
+  <text x="842" y="138" fill="#5367d9" font-family="Arial, sans-serif" font-size="10" font-weight="700" letter-spacing="1.8">LOCAL-FIRST</text>
+  <text x="842" y="169" fill="#172033" font-family="Arial, sans-serif" font-size="20" font-weight="700">ApplyPilot</text>
+  <rect x="842" y="191" width="352" height="48" rx="9" fill="#fff" stroke="#dbe0f6"/>
+  <text x="858" y="211" fill="#172033" font-family="Arial, sans-serif" font-size="12" font-weight="700">Review before filling</text>
+  <text x="858" y="228" fill="#667085" font-family="Arial, sans-serif" font-size="10">Nothing is submitted. Sensitive values are highlighted.</text>
+  <rect x="842" y="259" width="170" height="36" rx="8" fill="#5367d9"/>
+  <text x="927" y="282" fill="#fff" font-family="Arial, sans-serif" font-size="11" font-weight="700" text-anchor="middle">Scan current page</text>
+  <rect x="1021" y="259" width="100" height="36" rx="8" fill="#e9ebf3"/>
+  <text x="1071" y="282" fill="#283455" font-family="Arial, sans-serif" font-size="11" font-weight="700" text-anchor="middle">Profile</text>
+  <text x="842" y="329" fill="#667085" font-family="Arial, sans-serif" font-size="11">3 visible fields found · 2 ready to fill</text>
+  <text x="842" y="369" fill="#172033" font-family="Arial, sans-serif" font-size="14" font-weight="700">Suggested fields</text>
+  <rect x="842" y="387" width="352" height="54" rx="8" fill="#fff" stroke="#e1e5ee"/>
+  <circle cx="862" cy="414" r="8" fill="#e8f7ee"/><path d="m858 414 4 4 7-8" fill="none" stroke="#207547" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+  <text x="880" y="411" fill="#172033" font-family="Arial, sans-serif" font-size="12" font-weight="700">Email address</text>
+  <text x="880" y="428" fill="#667085" font-family="Arial, sans-serif" font-size="10">Approved profile value</text>
+  <rect x="842" y="451" width="352" height="54" rx="8" fill="#fff" stroke="#e1e5ee"/>
+  <circle cx="862" cy="478" r="8" fill="#e8f7ee"/><path d="m858 478 4 4 7-8" fill="none" stroke="#207547" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+  <text x="880" y="475" fill="#172033" font-family="Arial, sans-serif" font-size="12" font-weight="700">LinkedIn profile</text>
+  <text x="880" y="492" fill="#667085" font-family="Arial, sans-serif" font-size="10">Approved profile value</text>
+  <rect x="842" y="515" width="352" height="54" rx="8" fill="#fffaf4" stroke="#f0d4b6"/>
+  <circle cx="862" cy="542" r="8" fill="#fff0dd"/><text x="880" y="539" fill="#a85c17" font-family="Arial, sans-serif" font-size="12" font-weight="700">Work authorization</text>
+  <text x="880" y="556" fill="#a85c17" font-family="Arial, sans-serif" font-size="10">Review manually · not inferred</text>
+  <rect x="842" y="602" width="352" height="38" rx="8" fill="#5367d9"/>
+  <text x="1018" y="626" fill="#fff" font-family="Arial, sans-serif" font-size="11" font-weight="700" text-anchor="middle">Fill selected fields</text>
+</svg>

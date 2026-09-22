@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="560" viewBox="0 0 1400 560">
+  <rect width="1400" height="560" fill="#172033"/>
+  <circle cx="1210" cy="-40" r="330" fill="#5367d9" opacity=".32"/>
+  <circle cx="1320" cy="540" r="310" fill="#207547" opacity=".24"/>
+  <rect x="88" y="78" width="66" height="66" rx="18" fill="#5367d9"/>
+  <path d="M121 91 139 98v15c0 13-7 22-18 29-11-7-18-16-18-29V98l18-7Z" fill="#fff"/>
+  <path d="m113 113 7 7 14-16" fill="none" stroke="#5367d9" stroke-linecap="round" stroke-linejoin="round" stroke-width="5"/>
+  <text x="88" y="202" fill="#fff" font-family="Arial, sans-serif" font-size="52" font-weight="700">Job Application</text>
+  <text x="88" y="264" fill="#fff" font-family="Arial, sans-serif" font-size="52" font-weight="700">Assistant</text>
+  <text x="92" y="312" fill="#c8d0e5" font-family="Arial, sans-serif" font-size="22">Review-first form filling with local-first privacy.</text>
+  <text x="92" y="350" fill="#c8d0e5" font-family="Arial, sans-serif" font-size="22">You stay in control of every answer.</text>
+  <rect x="92" y="400" width="198" height="48" rx="9" fill="#5367d9"/>
+  <text x="191" y="431" fill="#fff" font-family="Arial, sans-serif" font-size="16" font-weight="700" text-anchor="middle">Review before filling</text>
+  <rect x="780" y="76" width="520" height="388" rx="20" fill="#f6f7fb"/>
+  <rect x="780" y="76" width="520" height="46" rx="20" fill="#fff"/>
+  <circle cx="813" cy="99" r="7" fill="#e1e5ee"/>
+  <circle cx="837" cy="99" r="7" fill="#e1e5ee"/>
+  <circle cx="861" cy="99" r="7" fill="#e1e5ee"/>
+  <rect x="900" y="91" width="330" height="16" rx="8" fill="#eef0f6"/>
+  <rect x="814" y="148" width="452" height="290" rx="14" fill="#fff" stroke="#dbe0f6"/>
+  <text x="844" y="183" fill="#5367d9" font-family="Arial, sans-serif" font-size="11" font-weight="700" letter-spacing="2">LOCAL-FIRST</text>
+  <text x="844" y="215" fill="#172033" font-family="Arial, sans-serif" font-size="22" font-weight="700">Suggested fields</text>
+  <rect x="844" y="235" width="392" height="38" rx="8" fill="#fff" stroke="#e1e5ee"/>
+  <circle cx="864" cy="254" r="8" fill="#e8f7ee"/>
+  <path d="m860 254 4 4 7-8" fill="none" stroke="#207547" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+  <text x="884" y="258" fill="#172033" font-family="Arial, sans-serif" font-size="13" font-weight="700">Email</text>
+  <text x="1188" y="258" fill="#207547" font-family="Arial, sans-serif" font-size="12" text-anchor="end">Approved</text>
+  <rect x="844" y="283" width="392" height="38" rx="8" fill="#fff" stroke="#e1e5ee"/>
+  <circle cx="864" cy="302" r="8" fill="#e8f7ee"/>
+  <path d="m860 302 4 4 7-8" fill="none" stroke="#207547" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+  <text x="884" y="306" fill="#172033" font-family="Arial, sans-serif" font-size="13" font-weight="700">Location</text>
+  <text x="1188" y="306" fill="#207547" font-family="Arial, sans-serif" font-size="12" text-anchor="end">Approved</text>
+  <rect x="844" y="331" width="392" height="38" rx="8" fill="#fffaf4" stroke="#f0d4b6"/>
+  <circle cx="864" cy="350" r="8" fill="#fff0dd"/>
+  <text x="884" y="354" fill="#a85c17" font-family="Arial, sans-serif" font-size="13" font-weight="700">Work authorization</text>
+  <text x="1188" y="354" fill="#a85c17" font-family="Arial, sans-serif" font-size="12" text-anchor="end">Review</text>
+  <rect x="844" y="389" width="168" height="32" rx="7" fill="#5367d9"/>
+  <text x="928" y="410" fill="#fff" font-family="Arial, sans-serif" font-size="11" font-weight="700" text-anchor="middle">Fill selected fields</text>
+</svg>

@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { classifyField, suggestField } from "../src/field-mapper.mjs";
 import { extractCandidateProfile } from "../src/resume-parser.mjs";
-import { discoverQuestions, isSensitivePrompt, mergeQuestionBank } from "../src/question-bank.mjs";
+import { applySavedAnswers, discoverQuestions, isSensitivePrompt, mergeQuestionBank } from "../src/question-bank.mjs";
 
 const profile = {
   identity: { fullName: "Jordan Example" },
@@ -16,6 +16,11 @@ test("maps an email field to the approved contact value", () => {
   assert.equal(suggestion.mapping.key, "contact.email");
   assert.equal(suggestion.value, "jordan@example.com");
   assert.equal(suggestion.status, "ready");
+});
+
+test("keeps high-risk mappings manual", () => {
+  const suggestion = suggestField({ label: "Will you require visa sponsorship?", name: "sponsorship", id: "sponsorship", placeholder: "", autocomplete: "" }, profile);
+  assert.equal(suggestion.mapping.manualOnly, true);
 });
 
 test("marks an unknown field for manual review", () => {
@@ -60,4 +65,12 @@ test("stores unfamiliar questions and flags sensitive prompts", () => {
   const merged = mergeQuestionBank([], discovered);
   assert.equal(merged[0].answer, "");
   assert.equal(merged[1].occurrences, 1);
+});
+
+test("keeps saved sensitive answers manual", () => {
+  const [suggestion] = applySavedAnswers([
+    { index: 0, label: "Will you require visa sponsorship?", name: "sponsorship", value: "", status: "needs-review", mapping: { key: null, sensitive: false } }
+  ], [{ id: "will you require visa sponsorship", prompt: "Will you require visa sponsorship?", answer: "No", sensitive: true }]);
+  assert.equal(suggestion.value, "No");
+  assert.equal(suggestion.mapping.manualOnly, true);
 });

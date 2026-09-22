@@ -11,6 +11,17 @@ button { border: 0; border-radius: 8px; cursor: pointer; padding: 10px 14px; fon
 label { display: block; margin: 10px 0 6px; font-size: 13px; font-weight: 700; }
 textarea { width: 100%; min-height: 520px; padding: 14px; border: 1px solid #d7dce8; border-radius: 10px; background: #fff; color: #172033; font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; }
 .status { min-height: 20px; color: #207547; }
+.helper-text { margin-top: 8px; color: #667085; font-size: 12px; }
+details.advanced { margin: 18px 0; padding: 12px 14px; border: 1px solid #e1e5ee; border-radius: 9px; background: #fbfcff; }
+details.advanced summary { cursor: pointer; color: #5367d9; font-size: 13px; font-weight: 700; }
+.automation-settings { margin: 24px 0; padding: 18px; border: 1px solid #dbe0f6; border-radius: 10px; background: #fff; }
+.automation-settings h2 { margin: 0; font-size: 18px; }
+.automation-settings p { color: #667085; font-size: 13px; line-height: 1.5; }
+.proposal-summary { display: grid; gap: 8px; margin: 16px 0; }
+.proposal-summary p { margin: 0; color: #667085; font-size: 13px; }
+.proposal-fact { display: grid; grid-template-columns: minmax(140px, 0.4fr) 1fr; gap: 12px; padding: 10px 12px; border: 1px solid #e1e5ee; border-radius: 8px; background: #fff; }
+.proposal-fact strong { font-size: 12px; }
+.proposal-fact span { color: #475467; font-size: 12px; overflow-wrap: anywhere; }
 .guardrails { margin-top: 28px; padding: 16px; border: 1px solid #dbe0f6; border-radius: 10px; background: #fff; }
 .guardrails h2 { margin-top: 0; font-size: 16px; }
 .guardrails li { margin: 8px 0; color: #475467; }

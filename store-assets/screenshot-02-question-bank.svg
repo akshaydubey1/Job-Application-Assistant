@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800">
+  <rect width="1280" height="800" fill="#f6f7fb"/>
+  <rect x="0" y="0" width="1280" height="84" fill="#fff" stroke="#e1e5ee"/>
+  <text x="78" y="38" fill="#5367d9" font-family="Arial, sans-serif" font-size="11" font-weight="700" letter-spacing="2">PRIVATE PROFILE</text>
+  <text x="78" y="65" fill="#172033" font-family="Arial, sans-serif" font-size="24" font-weight="700">Approved application profile</text>
+  <text x="1118" y="53" fill="#207547" font-family="Arial, sans-serif" font-size="12" font-weight="700" text-anchor="end">Stored locally</text>
+  <rect x="78" y="116" width="1124" height="120" rx="14" fill="#fff" stroke="#dbe0f6"/>
+  <text x="106" y="151" fill="#172033" font-family="Arial, sans-serif" font-size="18" font-weight="700">Build profile from resume</text>
+  <text x="106" y="179" fill="#667085" font-family="Arial, sans-serif" font-size="13">Extracted details become a proposal. Nothing overwrites your approved profile automatically.</text>
+  <rect x="106" y="193" width="220" height="28" rx="6" fill="#e9ebf3"/>
+  <text x="216" y="211" fill="#283455" font-family="Arial, sans-serif" font-size="10" font-weight="700" text-anchor="middle">resume.pdf</text>
+  <rect x="338" y="193" width="124" height="28" rx="6" fill="#5367d9"/>
+  <text x="400" y="211" fill="#fff" font-family="Arial, sans-serif" font-size="10" font-weight="700" text-anchor="middle">Extract details</text>
+  <rect x="78" y="264" width="700" height="458" rx="14" fill="#fff" stroke="#dbe0f6"/>
+  <text x="106" y="302" fill="#172033" font-family="Arial, sans-serif" font-size="18" font-weight="700">Discovered application questions</text>
+  <text x="106" y="330" fill="#667085" font-family="Arial, sans-serif" font-size="13">Save an approved answer once and review it the next time the question appears.</text>
+  <rect x="106" y="360" width="644" height="98" rx="9" fill="#fff" stroke="#e1e5ee"/>
+  <text x="130" y="392" fill="#172033" font-family="Arial, sans-serif" font-size="13" font-weight="700">Why are you interested in this role?</text>
+  <text x="130" y="416" fill="#667085" font-family="Arial, sans-serif" font-size="11">Example Technologies · seen 2 times</text>
+  <rect x="130" y="429" width="590" height="15" rx="5" fill="#f6f7fb"/>
+  <rect x="106" y="476" width="644" height="124" rx="9" fill="#fffaf4" stroke="#f0d4b6"/>
+  <text x="130" y="508" fill="#a85c17" font-family="Arial, sans-serif" font-size="13" font-weight="700">Will you now or in the future require sponsorship?</text>
+  <text x="130" y="532" fill="#a85c17" font-family="Arial, sans-serif" font-size="11">Sensitive question · review required</text>
+  <rect x="130" y="548" width="590" height="30" rx="6" fill="#fff" stroke="#f0d4b6"/>
+  <text x="145" y="568" fill="#98a2b3" font-family="Arial, sans-serif" font-size="11">Add your approved answer manually</text>
+  <rect x="806" y="264" width="396" height="458" rx="14" fill="#fff" stroke="#dbe0f6"/>
+  <text x="836" y="302" fill="#172033" font-family="Arial, sans-serif" font-size="18" font-weight="700">Safety defaults</text>
+  <circle cx="849" cy="346" r="9" fill="#e8f7ee"/><path d="m845 346 4 4 7-8" fill="none" stroke="#207547" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+  <text x="872" y="350" fill="#475467" font-family="Arial, sans-serif" font-size="12">Manual approval before filling</text>
+  <circle cx="849" cy="386" r="9" fill="#e8f7ee"/><path d="m845 386 4 4 7-8" fill="none" stroke="#207547" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+  <text x="872" y="390" fill="#475467" font-family="Arial, sans-serif" font-size="12">No automatic submission</text>
+  <circle cx="849" cy="426" r="9" fill="#e8f7ee"/><path d="m845 426 4 4 7-8" fill="none" stroke="#207547" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+  <text x="872" y="430" fill="#475467" font-family="Arial, sans-serif" font-size="12">Unknown facts stay blank</text>
+  <rect x="836" y="484" width="336" height="104" rx="9" fill="#f6f7fb"/>
+  <text x="858" y="516" fill="#5367d9" font-family="Arial, sans-serif" font-size="11" font-weight="700">INSTALLER RESPONSIBILITY</text>
+  <text x="858" y="542" fill="#475467" font-family="Arial, sans-serif" font-size="12">Verify every answer, sensitive detail,</text>
+  <text x="858" y="562" fill="#475467" font-family="Arial, sans-serif" font-size="12">and final application before submission.</text>
+  <rect x="836" y="616" width="166" height="36" rx="8" fill="#5367d9"/>
+  <text x="919" y="639" fill="#fff" font-family="Arial, sans-serif" font-size="11" font-weight="700" text-anchor="middle">Save question answers</text>
+</svg>

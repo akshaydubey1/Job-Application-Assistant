@@ -3,24 +3,27 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Job Application Assistant Profile</title>
+    <title>ApplyPilot Profile</title>
     <link rel="stylesheet" href="options.css" />
   </head>
   <body>
     <main>
       <header>
         <p class="eyebrow">PRIVATE PROFILE</p>
-        <h1>Approved application profile</h1>
-        <p>Values are stored in this browser’s local extension storage. They are not uploaded by this MVP.</p>
+        <h1>Set up ApplyPilot</h1>
+        <p>Start with your resume. ApplyPilot builds a reviewable profile and keeps it in this browser. It does not upload your profile to a developer cloud service.</p>
       </header>
       <div class="actions">
-        <button id="saveButton" class="primary">Save locally</button>
-        <button id="importButton" class="secondary">Import JSON</button>
-        <button id="exportButton" class="secondary">Export JSON</button>
-        <input id="fileInput" type="file" accept="application/json" hidden />
+        <button id="saveButton" class="primary">Save profile locally</button>
       </div>
+      <section class="automation-settings">
+        <h2>Automatic assistance</h2>
+        <p>When enabled, opening ApplyPilot automatically scans the current page and fills approved profile values. High-risk questions such as sponsorship, work authorization, salary, and demographic questions stay manual.</p>
+        <label class="ack-label"><input id="autoAssistCheckbox" type="checkbox" /> Automatically scan and fill approved fields when I open the extension</label>
+        <div id="automationStatus" class="status"></div>
+      </section>
       <section class="resume-import">
-        <h2>Build profile from resume</h2>
+        <h2>1. Add your resume</h2>
         <p>Upload a resume to extract basic application facts. Extraction creates a proposal; it does not overwrite your approved profile automatically.</p>
         <div class="import-row">
           <input id="resumeInput" type="file" accept=".pdf,.docx,.txt,.md,.json,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/json,text/plain" />
@@ -28,10 +31,17 @@
         </div>
         <label for="parserUrl">Optional local parser URL for PDF/DOCX</label>
         <input id="parserUrl" class="url-input" value="http://127.0.0.1:8765" />
+        <p class="helper-text">TXT, Markdown, and JSON work inside the extension. PDF and DOCX use the optional local parser; it must be running on your computer.</p>
         <div id="extractStatus" class="status"></div>
-        <label for="proposalEditor">Extracted proposal</label>
-        <textarea id="proposalEditor" class="proposal" spellcheck="false" placeholder="Your extracted profile will appear here for review."></textarea>
-        <button id="approveProposalButton" class="primary">Approve proposal into profile</button>
+        <div id="proposalSummary" class="proposal-summary">
+          <p>No resume proposal yet. Upload a resume and choose <strong>Extract details</strong>.</p>
+        </div>
+        <details class="advanced">
+          <summary>Advanced: view extracted profile JSON</summary>
+          <label for="proposalEditor">Extracted proposal JSON</label>
+          <textarea id="proposalEditor" class="proposal" spellcheck="false" placeholder="Your extracted profile will appear here for review."></textarea>
+        </details>
+        <button id="approveProposalButton" class="primary">Approve reviewed details</button>
       </section>
       <section class="question-bank">
         <h2>Discovered application questions</h2>
@@ -50,8 +60,16 @@
         <button id="clearAckButton" class="secondary">Clear acknowledgment</button>
         <div id="ackStatus" class="status"></div>
       </section>
-      <label for="profileEditor">Profile JSON</label>
-      <textarea id="profileEditor" spellcheck="false"></textarea>
+      <details class="advanced">
+        <summary>Advanced: import, export, or edit profile JSON</summary>
+        <div class="actions">
+          <button id="importButton" class="secondary">Import JSON</button>
+          <button id="exportButton" class="secondary">Export JSON</button>
+          <input id="fileInput" type="file" accept="application/json" hidden />
+        </div>
+        <label for="profileEditor">Profile JSON</label>
+        <textarea id="profileEditor" spellcheck="false"></textarea>
+      </details>
       <p id="status" class="status"></p>
       <section class="guardrails">
         <h2>Safety defaults</h2>

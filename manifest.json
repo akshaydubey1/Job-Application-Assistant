@@ -1,11 +1,23 @@
 {
   "manifest_version": 3,
-  "name": "Job Application Assistant",
-  "version": "0.4.0",
+  "name": "ApplyPilot — Job Application Assistant",
+  "version": "0.4.4",
   "description": "Review-first assistant for mapping an approved profile to visible job-application fields.",
   "action": {
-    "default_title": "Job Application Assistant",
-    "default_popup": "popup.html"
+    "default_title": "ApplyPilot — Job Application Assistant",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "store-assets/icon16.png",
+      "32": "store-assets/icon32.png",
+      "48": "store-assets/icon48.png",
+      "128": "store-assets/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "store-assets/icon16.png",
+    "32": "store-assets/icon32.png",
+    "48": "store-assets/icon48.png",
+    "128": "store-assets/icon128.png"
   },
   "background": {
     "service_worker": "background.js"

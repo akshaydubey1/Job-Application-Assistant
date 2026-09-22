@@ -80,6 +80,7 @@ export function applySavedAnswers(suggestions, questionBank = []) {
         label: "Saved answer",
         confidence: 0.86,
         sensitive: Boolean(saved.sensitive),
+        manualOnly: Boolean(saved.sensitive),
         reason: "Answer supplied in the local question bank."
       }
     };
