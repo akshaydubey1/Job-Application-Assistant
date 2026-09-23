@@ -23,9 +23,10 @@ without taking control away from you.
 
 Import a resume, review the extracted profile proposal, and approve only the
 details you want to use. When you scan a visible application page, the
-extension suggests mappings for common fields such as name, email, phone,
-location, education, skills, LinkedIn, and GitHub. You choose which suggestions
-to fill; the extension does not submit the application.
+extension maps common fields such as name, email, phone, location, education,
+skills, LinkedIn, and GitHub. With automatic assistance enabled, approved
+non-high-risk values can be filled immediately; sensitive and unfamiliar
+questions remain manual. The extension does not submit the application.
 
 When a site asks an unfamiliar question, the extension can save the question
 locally in a reviewable question bank. Add an answer once, review it, and use it

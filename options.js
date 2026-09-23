@@ -9,12 +9,15 @@ const extractStatus = document.getElementById("extractStatus");
 const proposalSummary = document.getElementById("proposalSummary");
 const autoAssistCheckbox = document.getElementById("autoAssistCheckbox");
 const automationStatus = document.getElementById("automationStatus");
+const parserUrl = document.getElementById("parserUrl");
+const parserStatus = document.getElementById("parserStatus");
 let questionBank = [];
 
 document.addEventListener("DOMContentLoaded", async () => {
-  const saved = await chrome.storage.local.get(["profile", "questionBank", "responsibilityAck", "automationSettings"]);
+  const saved = await chrome.storage.local.get(["profile", "questionBank", "responsibilityAck", "automationSettings", "parserSettings"]);
   editor.value = JSON.stringify(saved.profile || defaultProfile, null, 2);
   questionBank = saved.questionBank || [];
+  parserUrl.value = saved.parserSettings?.url || "http://127.0.0.1:8765";
   autoAssistCheckbox.checked = saved.automationSettings?.autoAssist !== false;
   setAutomationStatus(autoAssistCheckbox.checked
     ? "Automatic scan and filling is on for approved, non-high-risk fields."
@@ -33,6 +36,17 @@ autoAssistCheckbox.addEventListener("change", async () => {
   setAutomationStatus(autoAssist
     ? "Automatic scan and filling is on for approved, non-high-risk fields."
     : "Automatic scan and filling is off. You can still scan manually from the extension popup.");
+});
+
+parserUrl.addEventListener("change", async () => {
+  try {
+    const url = getLocalParserUrl();
+    parserUrl.value = url;
+    await chrome.storage.local.set({ parserSettings: { url } });
+    setParserStatus("Parser address saved locally.");
+  } catch (error) {
+    setParserStatus(error.message, true);
+  }
 });
 
 document.getElementById("saveButton").addEventListener("click", async () => {
@@ -57,6 +71,7 @@ document.getElementById("fileInput").addEventListener("change", async (event) =>
 });
 
 document.getElementById("extractButton").addEventListener("click", extractResume);
+document.getElementById("checkParserButton").addEventListener("click", checkLocalParser);
 document.getElementById("approveProposalButton").addEventListener("click", approveProposal);
 document.getElementById("saveQuestionsButton").addEventListener("click", saveQuestions);
 document.getElementById("saveAckButton").addEventListener("click", saveAcknowledgment);
@@ -99,11 +114,12 @@ async function extractResume() {
 
 async function extractWithLocalParser(file) {
   if (file.size > 20 * 1024 * 1024) throw new Error("For safety, resume files must be 20 MB or smaller.");
+  const baseUrl = getLocalParserUrl();
   const bytes = new Uint8Array(await file.arrayBuffer());
   let binary = "";
   const chunkSize = 0x8000;
   for (let offset = 0; offset < bytes.length; offset += chunkSize) binary += String.fromCharCode(...bytes.subarray(offset, offset + chunkSize));
-  const response = await fetch(`${document.getElementById("parserUrl").value.replace(/\/$/, "")}/extract`, {
+  const response = await fetch(`${baseUrl}/extract`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ filename: file.name, data_base64: btoa(binary) })
@@ -111,6 +127,36 @@ async function extractWithLocalParser(file) {
   const result = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(result.error || "The local parser could not read this file.");
   return result;
+}
+
+async function checkLocalParser() {
+  try {
+    const baseUrl = getLocalParserUrl();
+    setParserStatus("Checking local parser…");
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 4000);
+    const response = await fetch(`${baseUrl}/health`, { signal: controller.signal });
+    clearTimeout(timeout);
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok || result.status !== "ok") throw new Error("The local parser did not return a healthy response.");
+    setParserStatus(`Connected${result.version ? ` · ${result.version}` : ""}.`);
+  } catch (error) {
+    setParserStatus(error.name === "AbortError" ? "The parser check timed out." : error.message || "The local parser is not running.", true);
+  }
+}
+
+function getLocalParserUrl() {
+  let parsed;
+  try {
+    parsed = new URL(parserUrl.value.trim());
+  } catch {
+    throw new Error("Enter a valid local parser URL.");
+  }
+  const localHosts = new Set(["127.0.0.1", "localhost", "[::1]", "::1"]);
+  if (!/^https?:$/.test(parsed.protocol) || !localHosts.has(parsed.hostname)) {
+    throw new Error("For privacy, the resume parser must run on this computer at localhost.");
+  }
+  return parsed.origin;
 }
 
 async function approveProposal() {
@@ -204,6 +250,11 @@ function setExtractStatus(message, error = false) {
   extractStatus.style.color = error ? "#b42318" : "#667085";
 }
 
+function setParserStatus(message, error = false) {
+  parserStatus.textContent = message;
+  parserStatus.style.color = error ? "#b42318" : "#207547";
+}
+
 function setAutomationStatus(message, error = false) {
   automationStatus.textContent = message;
   automationStatus.style.color = error ? "#b42318" : "#207547";
@@ -227,6 +278,9 @@ function renderQuestionBank() {
     const meta = document.createElement("div");
     meta.className = "question-meta";
     meta.textContent = `${question.site || "current page"} · seen ${question.occurrences || 1} time(s)${question.sensitive ? " · sensitive" : ""}`;
+    const choices = document.createElement("div");
+    choices.className = "question-choices";
+    if (question.choices?.length) choices.textContent = `Choices: ${question.choices.map((choice) => choice.text || choice.value).filter(Boolean).join(" · ")}`;
     const answer = document.createElement("textarea");
     answer.value = question.answer || "";
     answer.placeholder = question.sensitive ? "Enter only after you decide the exact response" : "Add an approved answer or leave blank";
@@ -241,7 +295,7 @@ function renderQuestionBank() {
       renderQuestionBank();
     });
     actions.append(forget);
-    wrapper.append(prompt, meta, answer, actions);
+    wrapper.append(prompt, meta, choices, answer, actions);
     container.append(wrapper);
   });
 }

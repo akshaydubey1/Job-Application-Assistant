@@ -25,10 +25,12 @@ approve those values.
 
 ## Where information is stored
 
-Approved profile data, question-bank entries, and acknowledgment data are
-stored in the browser's local extension storage. The extension does not send
-this information to a developer-operated cloud service, advertising network,
-analytics provider, or data broker.
+Approved profile data, question-bank entries, parser settings, and
+acknowledgment data are stored in the browser's local extension storage. The
+extension does not send this information to a developer-operated cloud
+service, advertising network, analytics provider, or data broker. Browser
+local storage is not encrypted; users must not store passwords, SSNs,
+passports, bank details, authentication codes, or other secrets in ApplyPilot.
 
 If the user chooses PDF or DOCX resume extraction and runs the optional local
 parser, the selected file is sent only to the local service on the user's own
@@ -41,15 +43,16 @@ The extension reads the visible form controls on the current page when the
 user opens the extension with automatic assistance enabled or chooses a manual
 scan. Chrome's `activeTab` model limits this access to the current tab after
 the user invokes the extension; the extension does not passively inspect every
-tab. It stores unfamiliar question prompts and limited metadata locally so the
-user can add an approved answer later. It does not save a screen capture or
-the entire page.
+tab. It stores unfamiliar question prompts, visible choices, and limited
+metadata locally so the user can add an approved answer later. It does not
+save a screen capture, body text, or the entire page.
 
 With automatic assistance enabled, only approved, non-high-risk profile
 values are filled automatically. Sponsorship, work authorization, salary,
-relocation, demographic, and other sensitive question-bank answers remain
-manual. The extension does not submit applications, bypass CAPTCHA, automate
-file uploads, or make employment-eligibility decisions.
+relocation, demographic, government-identification, and other sensitive
+question-bank answers remain manual. Field matching uses local rules and does
+not use an AI service. The extension does not submit applications, bypass
+CAPTCHA, automate file uploads, or make employment-eligibility decisions.
 
 ## Sharing and selling
 

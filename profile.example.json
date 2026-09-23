@@ -2,17 +2,22 @@
   "identity": {
     "fullName": "Your full name",
     "firstName": "Your first name",
-    "lastName": "Your last name"
+    "middleName": "",
+    "lastName": "Your last name",
+    "preferredName": ""
   },
   "contact": {
     "email": "you@example.com",
-    "phone": "+1 555 555 5555"
+    "phone": "+1 555 555 5555",
+    "phoneCountryCode": "+1"
   },
   "location": {
     "address": "",
+    "addressLine2": "",
     "city": "Dallas",
     "state": "TX",
-    "zip": ""
+    "zip": "",
+    "country": "United States"
   },
   "links": {
     "linkedin": "https://www.linkedin.com/in/your-profile",
@@ -25,11 +30,13 @@
   },
   "preferences": {
     "relocate": "Requires review before answering",
-    "salary": "Requires review before answering"
+    "salary": "Requires review before answering",
+    "noticePeriod": "Requires review before answering"
   },
   "education": {
     "degree": "Master's in Computer Science",
     "school": "Troy University",
+    "fieldOfStudy": "Computer Science",
     "graduationYear": ""
   },
   "answers": {
@@ -38,6 +45,7 @@
   },
   "metadata": {
     "source": "user-entered",
-    "lastReviewed": "YYYY-MM-DD"
+    "lastReviewed": "YYYY-MM-DD",
+    "schemaVersion": 2
   }
 }

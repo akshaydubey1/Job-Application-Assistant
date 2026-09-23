@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "ApplyPilot — Job Application Assistant",
-  "version": "0.4.4",
+  "version": "0.5.0",
   "description": "Review-first assistant for mapping an approved profile to visible job-application fields.",
   "action": {
     "default_title": "ApplyPilot — Job Application Assistant",

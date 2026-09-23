@@ -16,14 +16,23 @@ MAX_UPLOAD_BYTES = 20 * 1024 * 1024
 
 
 EMAIL = re.compile(r"\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b", re.I)
-PHONE = re.compile(r"(?<!\d)(?:\+?1[\s.-]?)?(?:\(?\d{3}\)?[\s.-])\d{3}[\s.-]\d{4}(?!\d)")
+PHONE = re.compile(r"(?<!\d)(?:\+|00)?\d[\d\s().-]{6,}\d(?!\d)")
 LINKEDIN = re.compile(r"https?://(?:www\.)?linkedin\.com/[^\s)]+", re.I)
 GITHUB = re.compile(r"https?://(?:www\.)?github\.com/[^\s)]+", re.I)
 LOCATION = re.compile(r"\b([A-Za-z .'-]+),\s*([A-Z]{2})(?:\s+(\d{5}(?:-\d{4})?))?\b")
+LABELED_COUNTRY = re.compile(r"(?:country|país|pays|land|paese)\s*:\s*([^\n,|]+)", re.I)
 
 
 def clean(value):
     return re.sub(r"\s+", " ", (value or "").replace("•", " ")).strip()
+
+
+def first_phone(text):
+    for candidate in PHONE.findall(text):
+        digits = re.sub(r"\D", "", candidate)
+        if 7 <= len(digits) <= 15 and not re.fullmatch(r"(?:\d{4}\s*[-–/.]\s*\d{1,2}\s*[-–/.]\s*\d{1,2}|\d{1,2}\s*[-–/.]\s*\d{1,2}\s*[-–/.]\s*\d{2,4})", candidate.strip()):
+            return candidate
+    return ""
 
 
 def fact(path, value, source, confidence):
@@ -45,7 +54,7 @@ def extract_profile(text):
             for line in lines
             if 2 <= len(line.split()) <= 6
             and len(line) <= 80
-            and re.fullmatch(r"[A-Za-z][A-Za-z .'-]+", line)
+            and re.fullmatch(r"[^\W\d_][\w .'-]+", line, re.UNICODE)
             and not re.search(r"resume|curriculum|vitae|profile|summary|experience|education|skills", line, re.I)
         ),
         "",
@@ -59,12 +68,15 @@ def extract_profile(text):
 
     for match, path, confidence in [
         (EMAIL.search(text), "contact.email", 0.99),
-        (PHONE.search(text), "contact.phone", 0.99),
         (LINKEDIN.search(text), "links.linkedin", 0.98),
         (GITHUB.search(text), "links.github", 0.98),
     ]:
         if match:
             facts.append(fact(path, match.group(0).rstrip(".,;"), match.group(0), confidence))
+
+    phone = first_phone(text)
+    if phone:
+        facts.append(fact("contact.phone", phone, phone, 0.99))
 
     location = LOCATION.search(text)
     if location:
@@ -72,6 +84,9 @@ def extract_profile(text):
         facts.append(fact("location.state", location.group(2), location.group(0), 0.92))
         if location.group(3):
             facts.append(fact("location.zip", location.group(3), location.group(0), 0.96))
+    country = LABELED_COUNTRY.search(text)
+    if country:
+        facts.append(fact("location.country", country.group(1), country.group(1), 0.86))
 
     degree = re.search(r"\b((?:master|bachelor|doctor(?:ate)?|associate)[^\n,;|]{0,80})", text, re.I)
     if degree:
@@ -146,10 +161,21 @@ class Handler(BaseHTTPRequestHandler):
     def _headers(self, status=200):
         self.send_response(status)
         self.send_header("Content-Type", "application/json")
-        self.send_header("Access-Control-Allow-Origin", "*")
+        origin = self.headers.get("Origin", "")
+        if origin.startswith("chrome-extension://"):
+            self.send_header("Access-Control-Allow-Origin", origin)
+            self.send_header("Vary", "Origin")
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
-        self.send_header("Access-Control-Allow-Methods", "POST, OPTIONS")
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
         self.end_headers()
+
+    def do_GET(self):
+        if self.path != "/health":
+            self._headers(404)
+            self.wfile.write(json.dumps({"error": "Not found"}).encode())
+            return
+        self._headers()
+        self.wfile.write(json.dumps({"status": "ok", "version": "1"}).encode())
 
     def do_OPTIONS(self):
         self._headers()
@@ -161,11 +187,13 @@ class Handler(BaseHTTPRequestHandler):
             return
         try:
             length = int(self.headers.get("Content-Length", "0"))
-            if length > MAX_UPLOAD_BYTES:
+            if length < 0 or length > MAX_UPLOAD_BYTES * 2:
                 raise RuntimeError("Resume files must be 20 MB or smaller.")
             payload = json.loads(self.rfile.read(length))
             filename = payload["filename"]
             data = base64.b64decode(payload["data_base64"], validate=True)
+            if len(data) > MAX_UPLOAD_BYTES:
+                raise RuntimeError("Resume files must be 20 MB or smaller.")
             result = extract_file(filename, data)
             self._headers()
             self.wfile.write(json.dumps(result).encode())

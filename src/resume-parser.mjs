@@ -1,8 +1,9 @@
 const EMAIL = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i;
-const PHONE = /(?<!\d)(?:\+?1[\s.-]?)?(?:\(?\d{3}\)?[\s.-])\d{3}[\s.-]\d{4}(?!\d)/;
+const PHONE = /(?<!\d)(?:\+|00)?\d[\d\s().-]{6,}\d(?!\d)/g;
 const LINKEDIN = /https?:\/\/(?:www\.)?linkedin\.com\/[^\s)]+/i;
 const GITHUB = /https?:\/\/(?:www\.)?github\.com\/[^\s)]+/i;
 const US_LOCATION = /\b([A-Za-z .'-]+),\s*([A-Z]{2})(?:\s+(\d{5}(?:-\d{4})?))?\b/;
+const LABELED_COUNTRY = /(?:country|país|pays|land|paese)\s*:\s*([^\n,|]+)/i;
 
 export function clean(value = "") {
   return value.replace(/[\u2022\u2023\u25CF]/g, " ").replace(/\s+/g, " ").trim();
@@ -29,7 +30,16 @@ export function profileFromFacts(facts, base = {}) {
 function firstLikelyName(lines) {
   return lines.find((line) => {
     const value = clean(line);
-    return value && value.length <= 80 && /^[A-Za-z][A-Za-z .'-]+$/.test(value) && value.split(/\s+/).length >= 2 && !/resume|curriculum|vitae|profile|summary|experience|education|skills/i.test(value);
+    return value && value.length <= 80 && /^[\p{L}][\p{L} .'’\-]+$/u.test(value) && value.split(/\s+/).length >= 2 && !/resume|curriculum|vitae|profile|summary|experience|education|skills/i.test(value);
+  }) || "";
+}
+
+function firstLikelyPhone(text) {
+  return String(text).match(PHONE)?.find((candidate) => {
+    const digits = candidate.replace(/\D/g, "");
+    return digits.length >= 7 && digits.length <= 15 &&
+      !/^\d{4}\s*[-–/.]\s*\d{1,2}\s*[-–/.]\s*\d{1,2}$/.test(candidate.trim()) &&
+      !/^\d{1,2}\s*[-–/.]\s*\d{1,2}\s*[-–/.]\s*\d{2,4}$/.test(candidate.trim());
   }) || "";
 }
 
@@ -59,7 +69,7 @@ export function extractCandidateProfile(text) {
 
   const email = sourceText.match(EMAIL)?.[0];
   if (email) facts.push(fact("contact.email", email, email, 0.99));
-  const phone = sourceText.match(PHONE)?.[0];
+  const phone = firstLikelyPhone(sourceText);
   if (phone) facts.push(fact("contact.phone", phone, phone, 0.99));
   const linkedin = sourceText.match(LINKEDIN)?.[0]?.replace(/[.,;]+$/, "");
   if (linkedin) facts.push(fact("links.linkedin", linkedin, linkedin, 0.98));
@@ -72,18 +82,20 @@ export function extractCandidateProfile(text) {
     facts.push(fact("location.state", location[2], location[0], 0.92));
     if (location[3]) facts.push(fact("location.zip", location[3], location[0], 0.96));
   }
+  const country = sourceText.match(LABELED_COUNTRY)?.[1];
+  if (country) facts.push(fact("location.country", country, country, 0.86));
 
-  const educationLine = findSectionLine(lines, ["education", "academic background"]);
-  const degree = sourceText.match(/\b((?:master|bachelor|doctor(?:ate)?|associate)[^\n,;|]{0,80})/i)?.[1];
+  const educationLine = findSectionLine(lines, ["education", "academic background", "formación", "éducation", "ausbildung", "istruzione"]);
+  const degree = sourceText.match(/\b((?:master|bachelor|doctor(?:ate)?|associate|máster|licenciatura|maîtrise|masterabschluss)[^\n,;|]{0,80})/i)?.[1];
   if (degree) facts.push(fact("education.degree", degree, degree, 0.78));
   if (educationLine && !/education|academic/i.test(educationLine)) facts.push(fact("education.school", educationLine, educationLine, 0.66));
   const graduationYear = sourceText.match(/(?:graduat(?:ed|ion)|class of|may|june|jun|december|dec)\s*(?:20)?(\d{2})\b/i)?.[1];
   if (graduationYear) facts.push(fact("education.graduationYear", graduationYear.length === 2 ? `20${graduationYear}` : graduationYear, graduationYear, 0.55));
 
-  const skillsLine = findSectionLine(lines, ["skills", "technical skills", "core technologies", "technologies"]);
+  const skillsLine = findSectionLine(lines, ["skills", "technical skills", "core technologies", "technologies", "habilidades", "compétences", "fähigkeiten", "competenze"]);
   if (skillsLine) facts.push(fact("resume.skills", skillsLine, skillsLine, 0.62));
 
-  const experienceIndex = lines.findIndex((line) => /^(professional )?(experience|work history)\b/i.test(line));
+  const experienceIndex = lines.findIndex((line) => /^(professional )?(experience|work history|experiencia|expérience|berufserfahrung|esperienza)\b/i.test(line));
   if (experienceIndex >= 0) {
     const block = lines.slice(experienceIndex + 1, experienceIndex + 7).filter((line) => !/\b(?:19|20)\d{2}\b|present|current/i.test(line));
     if (block[0]) facts.push(fact("experience.currentTitle", block[0], block[0], 0.5));

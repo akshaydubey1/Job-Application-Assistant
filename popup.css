@@ -28,7 +28,7 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 .field.sensitive { border-left: 3px solid #da7a2e; }
 .field label { display: block; font-size: 12px; font-weight: 700; }
 .field .meta { margin-top: 3px; color: #667085; font-size: 10px; }
-.field input[type="text"] { width: 100%; margin-top: 7px; padding: 7px; border: 1px solid #d7dce8; border-radius: 6px; font: inherit; font-size: 11px; }
+.field input:not([type="checkbox"]), .field select { width: 100%; margin-top: 7px; padding: 7px; border: 1px solid #d7dce8; border-radius: 6px; background: #fff; font: inherit; font-size: 11px; }
 .field input[type="checkbox"] { margin-top: 2px; accent-color: #5367d9; }
 .warning { color: #a85c17; }
 footer { margin-top: 16px; font-size: 10px; }

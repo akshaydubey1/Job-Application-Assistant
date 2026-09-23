@@ -32,6 +32,10 @@
         <label for="parserUrl">Optional local parser URL for PDF/DOCX</label>
         <input id="parserUrl" class="url-input" value="http://127.0.0.1:8765" />
         <p class="helper-text">TXT, Markdown, and JSON work inside the extension. PDF and DOCX use the optional local parser; it must be running on your computer.</p>
+        <div class="parser-actions">
+          <button id="checkParserButton" class="secondary" type="button">Check local parser</button>
+          <span id="parserStatus" class="status" aria-live="polite"></span>
+        </div>
         <div id="extractStatus" class="status"></div>
         <div id="proposalSummary" class="proposal-summary">
           <p>No resume proposal yet. Upload a resume and choose <strong>Extract details</strong>.</p>
@@ -74,9 +78,10 @@
       <section class="guardrails">
         <h2>Safety defaults</h2>
         <ul>
-          <li>Manual approval is required before fields are filled.</li>
+          <li>Approved, non-high-risk fields can fill automatically; sensitive and unknown fields stay manual.</li>
           <li>Submit buttons, CAPTCHA, and file uploads are never automated.</li>
           <li>Unverified facts remain blank instead of being invented.</li>
+          <li>Do not store passwords, SSNs, passports, bank details, or authentication codes here.</li>
         </ul>
       </section>
     </main>

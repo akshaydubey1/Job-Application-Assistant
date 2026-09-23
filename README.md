@@ -6,12 +6,13 @@ A local-first Manifest V3 extension that reads visible application fields from t
 
 - Opens the Profile page on first install so setup starts immediately.
 - When automatic assistance is enabled, opening the extension scans the current page and fills approved, non-high-risk values automatically.
-- Scans visible `input`, `textarea`, and `select` controls in the current page after the extension has active-tab access.
+- Scans native controls plus common custom combobox and content-editable controls in the current page after the extension has active-tab access.
 - Matches common application labels to profile facts such as name, contact details, links, work authorization, education, and approved answers.
+- Recognizes common field labels and autocomplete tokens used in English, Spanish, French, German, Italian, and Portuguese forms, while preserving unknown fields for review.
 - Imports a PDF, DOCX, TXT, Markdown, or JSON resume/profile and creates a friendly, reviewable profile proposal with source facts, confidence, and warnings. JSON remains available only under Advanced settings.
-- Stores unfamiliar application question prompts and metadata in a local question bank so the installer can add approved answers for later reuse. It does not save the entire page or a screen capture.
+- Stores only unfamiliar application question prompts, choices, and limited metadata in a local question bank so the installer can add approved answers for later reuse. It does not save the entire page or a screen capture.
 - Requires an installer responsibility acknowledgment before scanning or filling.
-- Shows confidence, missing values, and sensitive fields before anything is filled.
+- Shows confidence, missing values, and sensitive fields before anything is filled, and lets the installer enter a manual answer for an unfamiliar field.
 - Keeps sponsorship, work authorization, salary, relocation, demographic, and other high-risk fields manual even when automatic assistance is enabled.
 - Lets the installer turn automatic assistance off from Profile and use the manual review flow instead.
 - Keeps the profile in browser-local extension storage.
@@ -48,6 +49,8 @@ Chrome does not allow an extension to create a Python virtual environment, insta
 
 Keep the profile limited to facts you have verified. For immigration, sponsorship, salary, relocation, demographic, disability, veteran, and other sensitive questions, leave the value blank or mark it for manual review until you decide the exact response.
 
+Browser-local extension storage is not encrypted. Never store passwords, SSNs, passport numbers, bank details, authentication codes, or other secrets in the profile or question bank. Use the browser/device security controls and clear the profile when it is no longer needed.
+
 PDF and DOCX files are sent only to the optional service at `127.0.0.1`. The service extracts text in memory and does not save the uploaded resume. TXT, Markdown, and JSON files can be processed directly in the extension.
 
 The acknowledgment is a local product safeguard, not legal advice or a substitute for reviewing an employer’s application terms. The installer remains responsible for accuracy, sensitive information, eligibility answers, and submission.
@@ -61,6 +64,9 @@ The profile example is intentionally generic. Do not commit a real phone number,
 ```bash
 npm test
 ```
+
+See [TESTING.md](TESTING.md) for the international, dynamic-page, privacy,
+and local-parser test checklist.
 
 ## Planned next phase
 
