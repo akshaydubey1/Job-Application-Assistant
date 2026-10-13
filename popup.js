@@ -1,14 +1,14 @@
-import { defaultProfile, suggestFields } from "./src/field-mapper.mjs";
+import { APPROVABLE_SENSITIVE_KEYS, defaultProfile, suggestFields } from "./src/field-mapper.mjs";
 import { applySavedAnswers, discoverQuestions, mergeQuestionBank, questionId } from "./src/question-bank.mjs";
 
-const state = { profile: defaultProfile, suggestions: [], scan: null, questionBank: [], acknowledged: false, settings: { autoAssist: true } };
+const state = { profile: defaultProfile, suggestions: [], scan: null, questionBank: [], acknowledged: false, settings: { autoAssist: true, fillApprovedSensitive: false } };
 const $ = (id) => document.getElementById(id);
 
 document.addEventListener("DOMContentLoaded", async () => {
   const saved = await chrome.storage.local.get(["profile", "questionBank", "responsibilityAck", "automationSettings"]);
   state.profile = { ...defaultProfile, ...(saved.profile || {}) };
   state.questionBank = saved.questionBank || [];
-  state.settings = { autoAssist: true, ...(saved.automationSettings || {}) };
+  state.settings = { autoAssist: true, fillApprovedSensitive: false, ...(saved.automationSettings || {}) };
   state.acknowledged = Boolean(saved.responsibilityAck?.acknowledged && saved.responsibilityAck?.signature);
   const hasProfileValue = hasAnyProfileValue(state.profile);
   $("profileState").textContent = !state.acknowledged ? "Sign responsibility acknowledgment in Profile" : hasProfileValue ? "Profile: loaded locally" : "Profile: not configured";
@@ -121,7 +121,7 @@ function selectReady() {
 
 async function fillApprovedFields() {
   const selected = state.suggestions
-    .filter((item) => item?.value && item.status === "ready" && !item.mapping.manualOnly)
+    .filter((item) => item?.value && item.status === "ready" && canAutoFill(item))
     .map(toAssignment);
   if (!selected.length) return 0;
   setStatus(`Filling ${selected.length} approved field(s)…`);
@@ -155,6 +155,11 @@ async function fillSelected() {
   }
   if (!response?.ok) return setStatus(response?.error || "Fields could not be filled.", true);
   setStatus(`Filled ${response.data.filledCount} field(s). Review the page before continuing.`);
+}
+
+function canAutoFill(item) {
+  if (!item.mapping.manualOnly) return true;
+  return state.settings.fillApprovedSensitive === true && APPROVABLE_SENSITIVE_KEYS.has(item.mapping.key);
 }
 
 function toAssignment(item) {

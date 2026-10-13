@@ -65,6 +65,31 @@ function friendlyError(error) {
 }
 
 function scanPage() {
+  // Yes/No answers built from buttons instead of radio inputs (for example Ashby forms).
+  const choiceGroups = () => {
+    const words = new Set(["yes", "no", "si", "oui", "non", "ja", "nein", "sim", "nao"]);
+    const norm = (value) => String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+    const groups = [];
+    const seen = new Set();
+    for (const button of document.querySelectorAll('button, [role="button"], [role="radio"]')) {
+      if (!words.has(norm(button.innerText))) continue;
+      const parent = button.parentElement;
+      if (!parent || seen.has(parent)) continue;
+      const choices = Array.from(parent.children).filter((child) => words.has(norm(child.innerText)));
+      if (choices.length < 2) continue;
+      seen.add(parent);
+      let container = parent;
+      let label = "";
+      for (let depth = 0; depth < 5 && container && !label; depth += 1) {
+        container = container.parentElement;
+        const lines = String(container?.innerText || "").split("\n").map((line) => line.trim())
+          .filter((line) => line && !words.has(norm(line)));
+        label = lines.join(" ").slice(0, 500);
+      }
+      groups.push({ choices, label });
+    }
+    return groups;
+  };
   const selector = 'input, textarea, select, [contenteditable="true"], [role="combobox"]';
   const elements = Array.from(document.querySelectorAll(selector));
   const text = (value) => String(value || "").replace(/\s+/g, " ").trim();
@@ -122,10 +147,51 @@ function scanPage() {
     };
   }).filter((field) => field.visible);
 
+  choiceGroups().forEach((group, groupIndex) => {
+    fields.push({
+      index: 100000 + groupIndex,
+      tag: "buttongroup",
+      type: "buttongroup",
+      role: "radiogroup",
+      name: "", id: "", autocomplete: "", placeholder: "", ariaLabel: "",
+      label: group.label,
+      required: false,
+      contentEditable: false,
+      options: group.choices.map((choice) => ({ value: text(choice.innerText), text: text(choice.innerText) })),
+      locator: { tag: "buttongroup", group: groupIndex },
+      visible: true
+    });
+  });
+
   return { fields, detectedForms: document.forms.length };
 }
 
 function fillPageFields(assignments) {
+  // Yes/No answers built from buttons instead of radio inputs (for example Ashby forms).
+  const choiceGroups = () => {
+    const words = new Set(["yes", "no", "si", "oui", "non", "ja", "nein", "sim", "nao"]);
+    const norm = (value) => String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+    const groups = [];
+    const seen = new Set();
+    for (const button of document.querySelectorAll('button, [role="button"], [role="radio"]')) {
+      if (!words.has(norm(button.innerText))) continue;
+      const parent = button.parentElement;
+      if (!parent || seen.has(parent)) continue;
+      const choices = Array.from(parent.children).filter((child) => words.has(norm(child.innerText)));
+      if (choices.length < 2) continue;
+      seen.add(parent);
+      let container = parent;
+      let label = "";
+      for (let depth = 0; depth < 5 && container && !label; depth += 1) {
+        container = container.parentElement;
+        const lines = String(container?.innerText || "").split("\n").map((line) => line.trim())
+          .filter((line) => line && !words.has(norm(line)));
+        label = lines.join(" ").slice(0, 500);
+      }
+      groups.push({ choices, label });
+    }
+    return groups;
+  };
   const selector = 'input, textarea, select, [contenteditable="true"], [role="combobox"]';
   const elements = Array.from(document.querySelectorAll(selector));
   const normalize = (value) => String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();
@@ -186,7 +252,21 @@ function fillPageFields(assignments) {
   };
   const results = [];
 
+  const groups = assignments.some((item) => item.locator?.tag === "buttongroup") ? choiceGroups() : [];
+
   for (const assignment of assignments) {
+    if (assignment.locator?.tag === "buttongroup") {
+      const group = groups[assignment.locator.group];
+      const wanted = normalize(assignment.value);
+      const choice = group?.choices.find((item) => normalize(item.innerText) === wanted);
+      if (!choice) {
+        results.push({ index: assignment.index, status: "skipped", reason: "No matching Yes/No choice was found." });
+        continue;
+      }
+      if (choice.getAttribute("aria-pressed") !== "true" && choice.getAttribute("aria-checked") !== "true") choice.click();
+      results.push({ index: assignment.index, status: "filled" });
+      continue;
+    }
     const element = findElement(assignment);
     const type = String(element?.getAttribute?.("type") || "").toLowerCase();
     if (!element || !visible(element) || element.disabled || element.readOnly || ["hidden", "submit", "button", "reset", "image", "file", "password"].includes(type)) {

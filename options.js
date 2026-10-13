@@ -8,6 +8,7 @@ const proposalEditor = document.getElementById("proposalEditor");
 const extractStatus = document.getElementById("extractStatus");
 const proposalSummary = document.getElementById("proposalSummary");
 const autoAssistCheckbox = document.getElementById("autoAssistCheckbox");
+const sensitiveFillCheckbox = document.getElementById("sensitiveFillCheckbox");
 const automationStatus = document.getElementById("automationStatus");
 const parserUrl = document.getElementById("parserUrl");
 const parserStatus = document.getElementById("parserStatus");
@@ -19,6 +20,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   questionBank = saved.questionBank || [];
   parserUrl.value = saved.parserSettings?.url || "http://127.0.0.1:8765";
   autoAssistCheckbox.checked = saved.automationSettings?.autoAssist !== false;
+  sensitiveFillCheckbox.checked = saved.automationSettings?.fillApprovedSensitive === true;
   setAutomationStatus(autoAssistCheckbox.checked
     ? "Automatic scan and filling is on for approved, non-high-risk fields."
     : "Automatic scan and filling is off. You can still scan manually from the extension popup.");
@@ -32,11 +34,22 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 autoAssistCheckbox.addEventListener("change", async () => {
   const autoAssist = autoAssistCheckbox.checked;
-  await chrome.storage.local.set({ automationSettings: { autoAssist } });
+  await saveAutomationSettings();
   setAutomationStatus(autoAssist
     ? "Automatic scan and filling is on for approved, non-high-risk fields."
     : "Automatic scan and filling is off. You can still scan manually from the extension popup.");
 });
+
+sensitiveFillCheckbox.addEventListener("change", async () => {
+  await saveAutomationSettings();
+  setAutomationStatus(sensitiveFillCheckbox.checked
+    ? "Your saved answers for sponsorship, authorization, relocation, start date and self-identification will be filled and highlighted for review."
+    : "Sponsorship, authorization, relocation and self-identification questions stay manual.");
+});
+
+async function saveAutomationSettings() {
+  await chrome.storage.local.set({ automationSettings: { autoAssist: autoAssistCheckbox.checked, fillApprovedSensitive: sensitiveFillCheckbox.checked } });
+}
 
 parserUrl.addEventListener("change", async () => {
   try {

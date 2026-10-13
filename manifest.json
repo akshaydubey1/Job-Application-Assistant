@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "ApplyPilot — Job Application Assistant",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Review-first assistant for mapping an approved profile to visible job-application fields.",
   "action": {
     "default_title": "ApplyPilot — Job Application Assistant",
@@ -31,5 +31,14 @@
   "host_permissions": [
     "http://127.0.0.1:8765/*",
     "http://localhost:8765/*"
-  ]
+  ],
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Alt+Shift+F",
+        "mac": "Alt+Shift+F"
+      },
+      "description": "Scan and fill this application"
+    }
+  }
 }
