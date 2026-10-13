@@ -1,6 +1,6 @@
 # Privacy Policy — ApplyPilot
 
-**Last updated:** September 22, 2026
+**Last updated:** October 13, 2026
 
 ApplyPilot is a review-first browser extension that helps a user
 map an approved profile to visible job-application fields. It is designed to
@@ -17,6 +17,16 @@ approves, including:
 - The text and labels of visible form fields on the page the user explicitly
   asks the extension to scan.
 - The installer responsibility acknowledgment and typed installer name.
+- A master resume text and optional agent notes that the user enters for the
+  optional AI agent.
+- An application tracker: company, role, posting URL, job-description text,
+  status, dates, next steps, fit analysis, tailored materials, and notes.
+- Networking contacts the user adds or saves from a LinkedIn profile page:
+  name, title, company, LinkedIn URL, email if entered, stage, dates, notes.
+- Documents the user saves (resume versions, letters, messages) and interview
+  practice sessions (questions, the user's answers, and feedback).
+- The text of the user's own LinkedIn profile when they choose **Optimize
+  profile**, kept locally until replaced.
 
 Sensitive information, including work authorization, sponsorship, salary,
 demographic information, disability, veteran status, and similar eligibility
@@ -50,9 +60,48 @@ save a screen capture, body text, or the entire page.
 With automatic assistance enabled, only approved, non-high-risk profile
 values are filled automatically. Sponsorship, work authorization, salary,
 relocation, demographic, government-identification, and other sensitive
-question-bank answers remain manual. Field matching uses local rules and does
-not use an AI service. The extension does not submit applications, bypass
+question-bank answers remain manual. Field matching for profile values uses local
+rules and does not use an AI service. The extension does not submit applications, bypass
 CAPTCHA, automate file uploads, or make employment-eligibility decisions.
+
+## LinkedIn pages, reminders, and notifications
+
+ApplyPilot reads a LinkedIn profile page only when the user clicks **Optimize
+profile** or **Save contact** in the popup, using the same `activeTab` access
+as every other action. It does not crawl LinkedIn, run in the background on
+LinkedIn, or message anyone. Recruiter and hiring-manager search buttons open
+ordinary LinkedIn or Google search pages in a new tab.
+
+Follow-up reminders are computed locally. The extension uses Chrome alarms to
+check them hourly, shows a count on its toolbar icon, and, unless the user
+turns it off, shows a desktop notification for follow-ups due today.
+
+## Optional AI agent
+
+The AI agent is off unless the user runs the local service with their own
+Anthropic API key (`ANTHROPIC_API_KEY`). The key stays in that local process
+and is never stored in the browser. When the user chooses an AI action
+(Analyze fit, Draft answers, or generating tailored materials), the extension
+sends the minimum context for that action to the local service, which forwards
+it to the Anthropic API under the user's own account:
+
+- Analyze fit and materials: the job-description text, the approved profile,
+  the master resume text, the agent notes, and non-sensitive approved answers.
+- Draft answers: the same candidate context plus the prompts and visible
+  choices of the remaining application questions on the page.
+- AI Studio, interview prep, and contact messages: the candidate context plus
+  what the user enters or selects for that tool (for example a job
+  description, LinkedIn profile text, an interview answer, or notes about a
+  contact).
+
+Work authorization, sponsorship, and salary values are removed from the profile
+before it is sent. Questions about work authorization, sponsorship, citizenship,
+salary, demographics, disability, veteran status, criminal history, government
+identification, date of birth, and legal consents are never sent for drafting
+and never receive an AI answer. Drafts are shown for review and only fill a page
+after the user selects them and confirms. Anthropic's handling of API data is
+governed by the user's agreement with Anthropic. The developer receives none of
+this data.
 
 ## Sharing and selling
 
@@ -63,7 +112,8 @@ protecting their own device, resume, browser profile, and exported files.
 ## Data deletion
 
 Users can edit or clear the profile, question bank, and acknowledgment from
-the extension's Profile page. Uninstalling the extension removes its browser
+the extension's Profile page, and delete tracked applications from the
+Workspace page. Uninstalling the extension removes its browser
 storage according to the browser's extension-data behavior. Local parser files
 and exported files are controlled by the user and must be deleted separately
 if desired.

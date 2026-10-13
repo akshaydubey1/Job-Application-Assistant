@@ -33,6 +33,12 @@ locally in a reviewable question bank. Add an answer once, review it, and use it
 as a suggestion the next time the question appears. Sensitive questions are
 highlighted and are never answered by inference.
 
+Beyond autofill, the Workspace includes a Kanban job tracker with follow-up
+reminders, a networking contacts tracker, a free ATS resume checker, a LinkedIn
+profile optimizer, AI writing tools, mock interviews with scored feedback, a
+skill-gap planner, a document library with PDF and Word export, and insights
+on your response rate.
+
 Privacy and control are built in:
 
 • Profile, approved answers, and acknowledgment data stay in your browser's
@@ -40,6 +46,10 @@ Privacy and control are built in:
 • PDF/DOCX extraction is optional and can use a local parser running on your
   own computer.
 • No resume or application data is sent to a developer-operated cloud service.
+• The optional AI agent runs through a local service on your computer with your
+  own Anthropic API key. It sends job text and your approved materials to the
+  Anthropic API only when you use an AI action, and never drafts sensitive
+  answers such as sponsorship, salary, or demographics.
 • Scanning requires an installer responsibility acknowledgment.
 • Every proposed value is reviewable before it is used.
 • The extension does not submit applications, bypass CAPTCHA, or automate file

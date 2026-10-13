@@ -20,4 +20,4 @@ jobs:
           python-version: "3.12"
       - run: npm test
       - run: npm run public-scan
-      - run: python -m py_compile local_service.py
+      - run: python -m py_compile local_service.py agent.py

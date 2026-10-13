@@ -34,3 +34,25 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 footer { margin-top: 16px; font-size: 10px; }
 footer a { color: #5367d9; text-decoration: none; }
 .hidden { display: none !important; }
+.chip { border-radius: 999px; background: #eef0f6; color: #475467; padding: 6px 8px; font-size: 10px; font-weight: 700; white-space: nowrap; }
+.chip.ready { background: #e8f7ee; color: #207547; }
+.chip.off { background: #fdf0e6; color: #a85c17; }
+.agent-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 8px; }
+.agent-bar button { padding: 8px 4px; font-size: 11px; }
+.field textarea { width: 100%; min-height: 72px; margin-top: 7px; padding: 7px; border: 1px solid #d7dce8; border-radius: 6px; background: #fff; font: inherit; font-size: 11px; resize: vertical; }
+.field.ai { border-left: 3px solid #5367d9; }
+.field .reason { margin-top: 3px; color: #475467; font-size: 10px; font-style: italic; }
+.field .choice { margin-top: 6px; font-size: 11px; font-weight: 600; color: #283455; }
+.job-card { margin: 0 0 12px; padding: 11px 12px; border: 1px solid #dbe0f6; border-radius: 10px; background: #fff; font-size: 11px; line-height: 1.45; }
+.job-card .row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.job-card .title { font-size: 12px; font-weight: 800; }
+.job-card .score { min-width: 44px; text-align: center; border-radius: 8px; padding: 5px 6px; font-size: 14px; font-weight: 800; color: #fff; background: #667085; }
+.job-card .score.high { background: #207547; }
+.job-card .score.mid { background: #5367d9; }
+.job-card .score.low { background: #a85c17; }
+.job-card ul { margin: 6px 0 0; padding-left: 16px; }
+.job-card .flag { color: #b42318; }
+.job-card .muted { color: #667085; }
+.linkedin-bar { display: grid; grid-template-columns: auto 1fr 1fr; gap: 6px; align-items: center; margin-top: 8px; padding: 8px; border: 1px solid #cfe0f3; border-radius: 10px; background: #f2f7fd; font-size: 11px; font-weight: 700; color: #0a4f8f; }
+.linkedin-bar button { padding: 7px 4px; font-size: 11px; }
+.due-link { display: block; width: 100%; margin-top: 8px; padding: 8px 10px; border-radius: 8px; background: #fdecea; color: #b42318; text-align: left; font-size: 11px; }

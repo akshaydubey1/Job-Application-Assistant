@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ApplyPilot Workspace</title>
+    <link rel="stylesheet" href="workspace.css" />
+  </head>
+  <body>
+    <div class="app">
+      <nav class="sidebar" aria-label="Workspace">
+        <div class="brand">
+          <p class="eyebrow">APPLYPILOT</p>
+          <strong>Workspace</strong>
+        </div>
+        <a href="#/today" data-route="today">Today <span id="dueCount" class="nav-count hidden"></span></a>
+        <a href="#/apps" data-route="apps">Applications</a>
+        <a href="#/board" data-route="board">Board</a>
+        <a href="#/contacts" data-route="contacts">Contacts</a>
+        <a href="#/interview" data-route="interview">Interview prep</a>
+        <a href="#/studio" data-route="studio">AI Studio</a>
+        <a href="#/docs" data-route="docs">Documents</a>
+        <a href="#/insights" data-route="insights">Insights</a>
+        <div class="sidebar-foot">
+          <span id="agentChip" class="chip">Checking agent…</span>
+          <a id="profileLink" href="options.html" target="_blank">Profile & settings</a>
+        </div>
+      </nav>
+      <main id="view" class="view" tabindex="-1"></main>
+    </div>
+
+    <dialog id="dialog"><div id="dialogBody"></div></dialog>
+
+    <script type="module" src="workspace.js"></script>
+  </body>
+</html>

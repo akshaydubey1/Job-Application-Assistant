@@ -12,10 +12,19 @@ const sensitiveFillCheckbox = document.getElementById("sensitiveFillCheckbox");
 const automationStatus = document.getElementById("automationStatus");
 const parserUrl = document.getElementById("parserUrl");
 const parserStatus = document.getElementById("parserStatus");
+const resumeTextInput = document.getElementById("resumeTextInput");
+const agentNotesInput = document.getElementById("agentNotesInput");
+const autoDraftCheckbox = document.getElementById("autoDraftCheckbox");
+const minConfidenceSelect = document.getElementById("minConfidenceSelect");
 let questionBank = [];
 
 document.addEventListener("DOMContentLoaded", async () => {
-  const saved = await chrome.storage.local.get(["profile", "questionBank", "responsibilityAck", "automationSettings", "parserSettings"]);
+  const saved = await chrome.storage.local.get(["profile", "questionBank", "responsibilityAck", "automationSettings", "parserSettings", "resumeText", "agentNotes", "agentSettings"]);
+  resumeTextInput.value = saved.resumeText || "";
+  agentNotesInput.value = saved.agentNotes || "";
+  autoDraftCheckbox.checked = Boolean(saved.agentSettings?.autoDraft);
+  minConfidenceSelect.value = String(saved.agentSettings?.minConfidence ?? 0.7);
+  if (!minConfidenceSelect.value) minConfidenceSelect.value = "0.7";
   editor.value = JSON.stringify(saved.profile || defaultProfile, null, 2);
   questionBank = saved.questionBank || [];
   parserUrl.value = saved.parserSettings?.url || "http://127.0.0.1:8765";
@@ -88,6 +97,10 @@ document.getElementById("checkParserButton").addEventListener("click", checkLoca
 document.getElementById("approveProposalButton").addEventListener("click", approveProposal);
 document.getElementById("saveQuestionsButton").addEventListener("click", saveQuestions);
 document.getElementById("saveAckButton").addEventListener("click", saveAcknowledgment);
+document.getElementById("checkAgentButton").addEventListener("click", checkAgent);
+document.getElementById("saveAgentButton").addEventListener("click", saveAgentSettings);
+document.getElementById("grantFramesButton").addEventListener("click", grantEmbeddedForms);
+document.getElementById("openWorkspaceButton").addEventListener("click", () => chrome.tabs.create({ url: chrome.runtime.getURL("workspace.html") }));
 document.getElementById("clearAckButton").addEventListener("click", clearAcknowledgment);
 
 document.getElementById("exportButton").addEventListener("click", () => {
@@ -116,6 +129,11 @@ async function extractResume() {
     }
     proposalEditor.value = JSON.stringify(result.profile, null, 2);
     renderProposalSummary(result);
+    if (result.text && extension !== "json" && String(result.text).trim().length > 100) {
+      resumeTextInput.value = String(result.text).trim();
+      await chrome.storage.local.set({ resumeText: resumeTextInput.value });
+      setAgentSettingsStatus("Master resume text updated from your upload.");
+    }
     const factCount = result.facts?.length || 0;
     setExtractStatus(factCount
       ? `Found ${factCount} detail(s). Review them below, then approve the details you want to keep.`
@@ -170,6 +188,49 @@ function getLocalParserUrl() {
     throw new Error("For privacy, the resume parser must run on this computer at localhost.");
   }
   return parsed.origin;
+}
+
+async function checkAgent() {
+  const element = document.getElementById("agentStatus");
+  element.textContent = "Checking…";
+  element.style.color = "#667085";
+  try {
+    const response = await chrome.runtime.sendMessage({ type: "agentHealth" });
+    const health = response?.data || {};
+    if (!health.running) throw new Error("The local service is not running. Start it with: python3 local_service.py");
+    if (!health.agent?.configured) throw new Error("The service is running, but ANTHROPIC_API_KEY is not set. Add it to your shell or a .env file next to local_service.py, then restart the service.");
+    element.textContent = `Claude is ready · model ${health.agent.model}.`;
+    element.style.color = "#207547";
+  } catch (error) {
+    element.textContent = error.message;
+    element.style.color = "#b42318";
+  }
+}
+
+async function saveAgentSettings() {
+  const minConfidence = Number(minConfidenceSelect.value) || 0.7;
+  await chrome.storage.local.set({
+    resumeText: resumeTextInput.value.trim().slice(0, 60000),
+    agentNotes: agentNotesInput.value.trim().slice(0, 6000),
+    agentSettings: { autoDraft: autoDraftCheckbox.checked, minConfidence }
+  });
+  setAgentSettingsStatus("Agent settings saved locally.");
+}
+
+async function grantEmbeddedForms() {
+  const origins = chrome.runtime.getManifest().optional_host_permissions || [];
+  try {
+    const granted = await chrome.permissions.request({ origins });
+    setAgentSettingsStatus(granted ? "Embedded application forms are allowed." : "Permission was not granted. Top-level pages still work.", !granted);
+  } catch (error) {
+    setAgentSettingsStatus(error.message, true);
+  }
+}
+
+function setAgentSettingsStatus(message, error = false) {
+  const element = document.getElementById("agentSettingsStatus");
+  element.textContent = message;
+  element.style.color = error ? "#b42318" : "#207547";
 }
 
 async function approveProposal() {

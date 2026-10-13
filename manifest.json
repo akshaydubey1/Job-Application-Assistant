@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "ApplyPilot — Job Application Assistant",
-  "version": "0.6.0",
-  "description": "Review-first assistant for mapping an approved profile to visible job-application fields.",
+  "version": "0.7.0",
+  "description": "Local-first job search agent: autofill, Claude-drafted answers, fit and ATS scores, tailored resumes, LinkedIn optimizer, mock interviews, tracker, and contacts.",
   "action": {
     "default_title": "ApplyPilot — Job Application Assistant",
     "default_popup": "popup.html",
@@ -20,13 +20,17 @@
     "128": "store-assets/icon128.png"
   },
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background.js",
+    "type": "module"
   },
   "options_page": "options.html",
   "permissions": [
     "activeTab",
     "scripting",
-    "storage"
+    "storage",
+    "unlimitedStorage",
+    "alarms",
+    "notifications"
   ],
   "host_permissions": [
     "http://127.0.0.1:8765/*",
@@ -39,6 +43,31 @@
         "mac": "Alt+Shift+F"
       },
       "description": "Scan and fill this application"
+    },
+    "save-job": {
+      "suggested_key": {
+        "default": "Alt+Shift+S",
+        "mac": "Alt+Shift+S"
+      },
+      "description": "Save the job on this page to your ApplyPilot tracker"
     }
-  }
+  },
+  "optional_host_permissions": [
+    "https://*.greenhouse.io/*",
+    "https://*.lever.co/*",
+    "https://*.myworkdayjobs.com/*",
+    "https://*.myworkday.com/*",
+    "https://*.ashbyhq.com/*",
+    "https://*.smartrecruiters.com/*",
+    "https://*.icims.com/*",
+    "https://*.workable.com/*",
+    "https://*.bamboohr.com/*",
+    "https://*.jobvite.com/*",
+    "https://*.taleo.net/*",
+    "https://*.successfactors.com/*",
+    "https://*.recruitee.com/*",
+    "https://*.breezy.hr/*",
+    "https://*.rippling.com/*",
+    "https://*.dover.com/*"
+  ]
 }

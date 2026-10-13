@@ -1,10 +1,12 @@
 {
   "name": "job-application-assistant-extension",
   "private": true,
-  "version": "0.6.0",
+  "version": "0.7.0",
   "type": "module",
   "scripts": {
-    "test": "node --test",
-    "public-scan": "node scripts/public-scan.mjs"
+    "test": "node --test && python3 -m unittest discover -s test -p 'test_*.py'",
+    "public-scan": "node scripts/public-scan.mjs",
+    "test:js": "node --test",
+    "test:e2e": "python3 test/e2e/run_e2e.py"
   }
 }

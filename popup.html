@@ -10,15 +10,15 @@
     <main class="shell">
       <header>
         <div>
-          <p class="eyebrow">LOCAL-FIRST</p>
+          <p class="eyebrow">LOCAL-FIRST AGENT</p>
           <h1>ApplyPilot</h1>
         </div>
-        <span class="lock" title="No automatic submission">Approval required</span>
+        <span id="agentChip" class="chip" title="Claude decision engine status">Checking agent…</span>
       </header>
 
       <section class="notice">
-        <strong>Review before submitting</strong>
-        <span>Approved fields can fill automatically. Nothing is submitted, and sensitive values stay highlighted.</span>
+        <strong>You stay in control</strong>
+        <span>ApplyPilot fills and drafts. It never clicks Submit, and sensitive questions always stay with you.</span>
       </section>
 
       <section class="toolbar">
@@ -26,7 +26,27 @@
         <button id="optionsButton" class="secondary">Profile</button>
       </section>
 
-      <p id="status" class="status">Ready. Add your approved profile, then scan an application page.</p>
+      <section class="agent-bar">
+        <button id="analyzeButton" class="secondary" title="Read the job description on this page and score your fit">Analyze fit</button>
+        <button id="draftButton" class="secondary" title="Let Claude draft answers for the remaining questions" disabled>Draft answers</button>
+        <button id="saveJobButton" class="secondary" title="Save this posting to your tracker (Alt+Shift+S)">Save job</button>
+        <button id="appliedButton" class="secondary" title="Log this application as submitted">Mark applied</button>
+        <button id="interviewButton" class="secondary" title="Practice likely interview questions for this job">Interview prep</button>
+        <button id="workspaceButton" class="secondary" title="Tracker, AI studio, contacts, documents, insights">Workspace</button>
+      </section>
+
+      <section id="linkedinBar" class="linkedin-bar hidden">
+        <span>LinkedIn profile</span>
+        <button id="linkedinOptimizeButton" class="secondary" title="Score this profile and get rewrites (use on your own profile)">Optimize profile</button>
+        <button id="linkedinContactButton" class="secondary" title="Save this person to your networking contacts">Save contact</button>
+      </section>
+
+      <button id="dueLink" class="due-link hidden"></button>
+
+      <p id="status" class="status" aria-live="polite">Ready. Add your approved profile, then scan an application page.</p>
+
+      <section id="jobCard" class="job-card hidden" aria-live="polite"></section>
+
       <div id="pageSummary" class="page-summary hidden"></div>
       <section id="fieldsSection" class="hidden">
         <div class="section-heading">

@@ -1,0 +1,12 @@
+body { margin: 0; background: #eef0f5; }
+.page { box-sizing: border-box; width: 8.5in; min-height: 11in; margin: 24px auto; padding: 0.7in; background: #fff; box-shadow: 0 6px 24px rgba(16, 24, 40, .12); }
+.toolbar { display: flex; gap: 12px; justify-content: center; align-items: center; padding: 12px; background: #283455; color: #fff; font: 13px Inter, system-ui, sans-serif; }
+.toolbar button { border: 0; border-radius: 8px; padding: 8px 14px; background: #fff; color: #283455; font-weight: 700; cursor: pointer; }
+@media print {
+  @page { margin: 0.6in; }
+  body { background: #fff; }
+  .no-print { display: none; }
+  .page { width: auto; min-height: 0; margin: 0; padding: 0; box-shadow: none; }
+  h2 { break-after: avoid; }
+  li { break-inside: avoid; }
+}
