@@ -17,6 +17,13 @@ A local-first Manifest V3 extension that reads visible application fields from t
 - Lets the installer turn automatic assistance off from Profile and use the manual review flow instead.
 - Keeps the profile in browser-local extension storage.
 
+## One-click fill (v0.6)
+
+- **Keyboard shortcut:** press **Alt+Shift+F** on any application page to open ApplyPilot, scan the form and fill approved fields. Change it at `chrome://extensions/shortcuts`.
+- **Yes/No buttons:** fills Yes/No questions built from buttons (as on Ashby forms), not only radio inputs.
+- **Import from Career Atelier:** in **Profile**, upload the `applicant-profile.json` made by the [Application Autofill](https://github.com/akshaydubey1/Career-Atelier) skill. It is converted to ApplyPilot's format for review before you approve it.
+- **Opt-in sensitive answers:** in **Profile**, you can choose to fill your saved answers for sponsorship, work authorization, relocation, start date and voluntary self-identification. They stay highlighted for review. Government ID, date of birth, citizenship and criminal-history questions are never filled.
+
 ## What it deliberately does not do
 
 - It does not submit applications or click Submit.

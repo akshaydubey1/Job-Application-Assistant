@@ -1,3 +1,4 @@
+import { fromCareerAtelier, isCareerAtelierProfile } from "./profile-import.mjs";
 const EMAIL = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i;
 const PHONE = /(?<!\d)(?:\+|00)?\d[\d\s().-]{6,}\d(?!\d)/g;
 const LINKEDIN = /https?:\/\/(?:www\.)?linkedin\.com\/[^\s)]+/i;
@@ -117,5 +118,8 @@ export function extractCandidateProfile(text) {
 
 export function profileFromJson(text) {
   const parsed = JSON.parse(text);
+  if (isCareerAtelierProfile(parsed)) {
+    return { text, profile: fromCareerAtelier(parsed), facts: [], warnings: ["Imported a Career Atelier applicant profile. Review every value, especially sponsorship and self-identification answers."] };
+  }
   return { text, profile: parsed, facts: [], warnings: ["Imported JSON is treated as user-provided and still requires review."] };
 }

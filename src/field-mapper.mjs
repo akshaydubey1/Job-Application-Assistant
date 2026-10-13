@@ -20,7 +20,12 @@ const RULES = [
   { key: null, patterns: ["citizenship", "nationality", "nationalité", "citizenship status", "ciudadanía", "staatsangehörigkeit", "cittadinanza"], label: "Citizenship / nationality", sensitive: true, manualOnly: true },
   { key: null, patterns: ["social security", "ssn", "national insurance", "tax id", "tax identification", "passport", "government id", "sin number", "número de identificación fiscal"], label: "Government identification", sensitive: true, manualOnly: true },
   { key: null, patterns: ["date of birth", "birth date", "dob", "birthday", "fecha de nacimiento", "date de naissance", "geburtsdatum", "data de nascimento"], label: "Date of birth", sensitive: true, manualOnly: true },
-  { key: null, patterns: ["gender", "sex", "pronouns", "veteran", "military service", "race", "ethnicity", "disability", "reasonable accommodation", "gender identity", "género", "genre", "geschlecht", "raça", "ethnicité"], label: "Demographic or equal-opportunity question", sensitive: true, manualOnly: true },
+  { key: "selfId.hispanicOrLatino", patterns: ["hispanic", "latino", "latina", "latinx"], label: "Hispanic or Latino", sensitive: true, manualOnly: true },
+  { key: "selfId.race", patterns: ["race", "ethnicity", "raça", "ethnicité"], label: "Race / ethnicity", sensitive: true, manualOnly: true },
+  { key: "selfId.veteranStatus", patterns: ["veteran", "military service", "protected veteran"], label: "Veteran status", sensitive: true, manualOnly: true },
+  { key: "selfId.disabilityStatus", patterns: ["disability", "disabled"], exclude: ["reasonable accommodation"], label: "Disability status", sensitive: true, manualOnly: true },
+  { key: "selfId.gender", patterns: ["gender", "sex", "gender identity", "género", "genre", "geschlecht"], label: "Gender", sensitive: true, manualOnly: true },
+  { key: null, patterns: ["pronouns", "reasonable accommodation"], label: "Demographic or accommodation question", sensitive: true, manualOnly: true },
   { key: null, patterns: ["criminal record", "criminal history", "background check", "conviction", "felony", "casier judiciaire", "vorstrafen"], label: "Background question", sensitive: true, manualOnly: true },
   { key: "preferences.relocate", patterns: ["relocate", "relocation", "willing to move", "willing to relocate", "relocación", "déménagement", "umzug"], label: "Relocation", sensitive: false, manualOnly: true },
   { key: "preferences.salary", patterns: ["desired salary", "salary expectation", "compensation", "pay expectation", "expected salary", "pretensión salarial", "salaire souhaité", "gehaltsvorstellung"], label: "Salary expectation", sensitive: true, manualOnly: true },
@@ -35,6 +40,20 @@ const RULES = [
   { key: "answers.coverLetter", patterns: ["cover letter", "coverletter", "lettre de motivation", "carta de presentación", "anschreiben"], label: "Cover letter", sensitive: false },
   { key: "answers.whyRole", patterns: ["why this role", "why do you want", "why interested", "motivation", "why this company", "por qué este puesto", "pourquoi ce poste", "warum diese stelle"], label: "Why this role", sensitive: false }
 ];
+
+// High-risk keys a user may explicitly pre-approve for automatic filling.
+// Fields with key: null (government ID, date of birth, citizenship, criminal history) are never auto-filled.
+export const APPROVABLE_SENSITIVE_KEYS = new Set([
+  "workAuthorization.authorized",
+  "workAuthorization.sponsorship",
+  "preferences.relocate",
+  "preferences.noticePeriod",
+  "selfId.hispanicOrLatino",
+  "selfId.race",
+  "selfId.veteranStatus",
+  "selfId.disabilityStatus",
+  "selfId.gender"
+]);
 
 export function normalize(text = "") {
   return String(text)
@@ -51,9 +70,18 @@ export function getPath(object, path) {
   return path?.split(".").reduce((value, key) => value?.[key], object);
 }
 
+// Short patterns ("unit", "tel", "zip", "sex", "race") must match a whole word,
+// so "United States" is not read as an apartment unit and "trace" is not read as race.
+function containsPattern(haystack, pattern) {
+  const wanted = normalize(pattern);
+  if (!wanted) return false;
+  if (wanted.length > 4) return haystack.includes(wanted);
+  return ` ${haystack} `.includes(` ${wanted} `);
+}
+
 function matchesRule(rule, haystack) {
-  const excluded = (rule.exclude || []).some((pattern) => haystack.includes(normalize(pattern)));
-  return !excluded && rule.patterns.some((pattern) => haystack.includes(normalize(pattern)));
+  const excluded = (rule.exclude || []).some((pattern) => containsPattern(haystack, pattern));
+  return !excluded && rule.patterns.some((pattern) => containsPattern(haystack, pattern));
 }
 
 export function classifyField(field = {}) {
@@ -67,7 +95,10 @@ export function classifyField(field = {}) {
     field.role
   ].filter(Boolean).join(" "));
 
-  const match = RULES.find((rule) => matchesRule(rule, haystack));
+  // High-risk question rules win over contact/location rules, so
+  // "...sponsorship to work in the United States?" is a sponsorship question, not a state field.
+  const match = RULES.find((rule) => rule.manualOnly && matchesRule(rule, haystack))
+    || RULES.find((rule) => !rule.manualOnly && matchesRule(rule, haystack));
   if (match) return { ...match, confidence: confidenceFor(match, field, haystack) };
   return { key: null, label: "Needs review", sensitive: false, confidence: 0, reason: "No verified profile mapping was found." };
 }
@@ -106,5 +137,6 @@ export const defaultProfile = {
   education: { degree: "", school: "", fieldOfStudy: "", graduationYear: "" },
   experience: { currentEmployer: "", currentTitle: "", years: "" },
   answers: { coverLetter: "", whyRole: "" },
+  selfId: { hispanicOrLatino: "", race: "", veteranStatus: "", disabilityStatus: "", gender: "" },
   metadata: { source: "user-entered", lastReviewed: "", schemaVersion: 2 }
 };
