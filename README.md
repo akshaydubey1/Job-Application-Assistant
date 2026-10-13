@@ -1,6 +1,24 @@
 # ApplyPilot — Job Application Assistant
 
-A local-first Manifest V3 extension that reads visible application fields from the active page, maps them to an approved profile, and helps fill application forms without sending profile data to a developer cloud service.
+A local-first Manifest V3 extension and job-application agent. It reads visible application fields from the active page, fills them from an approved profile, and, with the optional Claude decision engine, drafts answers to new questions, scores your fit for the job, writes a tailored resume, cover letter, and outreach message, and tracks every application. It never clicks Submit, and sensitive questions always stay with you.
+
+## The agent at a glance
+
+| Capability | Where | What happens |
+| --- | --- | --- |
+| Fill approved fields | Popup → **Scan & fill** | Rule-based mapping of name, contact, links, education, and saved answers. Works in embedded ATS frames too. |
+| Draft answers | Popup → **Draft answers** | Claude decides answers for the remaining questions from your profile, master resume, notes, approved answers, and the job posting. Drafts show confidence and source; high-confidence drafts are pre-selected; nothing fills until you click **Fill selected**. Approved short factual answers are saved for reuse. |
+| Analyze fit | Popup → **Analyze fit**, or Workspace | Reads the posting (JSON-LD when available), checks each requirement against your materials with evidence, gives a 0–100 score, a recommendation, gaps with mitigations, knockout risks to check yourself, and ATS keywords. |
+| Tailored materials | Workspace | Tailored resume (same format as your master resume), cover letter, and a short human outreach message. Claude lists what it changed and what it refused to claim. Copy or download. |
+| Track applications | Automatic + Workspace | Every job you analyze, fill, or mark applied is logged with status, dates, fit, materials, and notes. Filter, search, export CSV, back up and restore JSON. |
+
+### Decision guardrails
+
+- Claude only uses facts from your approved profile, master resume, notes, and approved answers. Unsupported questions come back blank and marked for you.
+- Work authorization, sponsorship, citizenship, salary, demographic, disability, veteran, criminal-history, government-ID, date-of-birth, and legal-consent questions are never sent for drafting and never answered. This is enforced in both the extension and the local service, regardless of model output.
+- Choice answers must exactly match an option on the page; text answers respect the field's maximum length.
+- Job-page text is treated as untrusted data, so instructions hidden in a posting are ignored.
+- Your Anthropic API key lives only in the local service on your computer. The browser never holds it.
 
 ## What it does
 
@@ -22,8 +40,8 @@ A local-first Manifest V3 extension that reads visible application fields from t
 - It does not submit applications or click Submit.
 - It does not bypass CAPTCHA, bot checks, login controls, or file-upload restrictions.
 - It does not request broad `<all_urls>` access or passively inspect every tab.
-- It does not send screen captures, resume data, or profile data to an API.
-- It does not invent an answer when a fact is missing or unverified.
+- It does not send screen captures. Resume, profile, and job text go to the Anthropic API only through your local service, only when you use an AI action, and never to a developer service.
+- It does not invent an answer when a fact is missing or unverified, and it never drafts sensitive or consent answers.
 - It does not make the installer’s responsibility disappear: the installer must verify sensitive details and the final application.
 
 ## Install for local testing
@@ -32,16 +50,22 @@ A local-first Manifest V3 extension that reads visible application fields from t
 2. Turn on **Developer mode**.
 3. Choose **Load unpacked** and select this folder.
 4. Open the extension’s **Profile** page, upload your resume, and click **Extract details**. Review the friendly detail list and choose **Approve reviewed details**.
-5. For PDF/DOCX extraction, start the optional local parser from this folder if it is not already running:
+5. Start the local service from this folder. It handles PDF/DOCX extraction and, with an API key, the Claude agent:
 
    ```bash
    python3 -m pip install -r requirements.txt
+   cp .env.example .env        # then put your key after ANTHROPIC_API_KEY=
    python3 local_service.py
    ```
 
+   The service prints whether the AI agent is enabled. Without a key, everything except the AI actions still works. Optional settings in `.env`: `APPLYPILOT_MODEL` (default `claude-opus-5-5`), `APPLYPILOT_EXTENSION_ID` to accept only your installed extension, and `APPLYPILOT_PORT`.
+
+5a. On the **Profile** page, under **AI agent**, check that the master resume text looks right, add any facts the resume does not show (for example total years of experience or location preferences), click **Check AI agent**, then **Save agent settings**. Click **Allow embedded application forms** if you apply on company sites that embed Greenhouse, Lever, Workday, Ashby, and similar forms.
+
 6. In **Profile**, review discovered questions, add approved answers, then complete the installer responsibility acknowledgment by checking the box and typing your name.
 7. Leave **Automatic assistance** enabled if you want the extension popup to scan and fill approved fields when opened. High-risk questions remain highlighted for review.
-8. Open a job application page and click the extension. It will scan the visible form and fill approved values. Review the page and use the manual controls for any remaining fields.
+8. Open a job application page and click the extension. It will scan the visible form and fill approved values. Click **Analyze fit** to score the job, then **Draft answers** to have Claude handle the remaining questions. Review the blue Claude cards, edit anything, and click **Fill selected**. Sensitive questions stay highlighted for you.
+9. Click **Mark applied** after you submit. Open **Workspace** to generate the tailored resume, cover letter, and outreach message, and to manage your tracker.
 
 Chrome does not allow an extension to create a Python virtual environment, install packages, or launch a local process silently. The optional parser therefore remains a separate local process. A future native-messaging host or an entirely bundled JavaScript parser could remove that requirement, but either would need a separate security and packaging review.
 
@@ -51,7 +75,7 @@ Keep the profile limited to facts you have verified. For immigration, sponsorshi
 
 Browser-local extension storage is not encrypted. Never store passwords, SSNs, passport numbers, bank details, authentication codes, or other secrets in the profile or question bank. Use the browser/device security controls and clear the profile when it is no longer needed.
 
-PDF and DOCX files are sent only to the optional service at `127.0.0.1`. The service extracts text in memory and does not save the uploaded resume. TXT, Markdown, and JSON files can be processed directly in the extension.
+PDF and DOCX files are sent only to the local service at `127.0.0.1`. The service extracts text in memory and does not save the uploaded resume. TXT, Markdown, and JSON files can be processed directly in the extension. AI actions send the minimum context through the same local service to the Anthropic API; see [PRIVACY.md](PRIVACY.md).
 
 The acknowledgment is a local product safeguard, not legal advice or a substitute for reviewing an employer’s application terms. The installer remains responsible for accuracy, sensitive information, eligibility answers, and submission.
 
@@ -62,12 +86,27 @@ The profile example is intentionally generic. Do not commit a real phone number,
 ## Test
 
 ```bash
-npm test
+npm test             # JS unit tests + Python agent/service tests (no network)
+npm run public-scan
 ```
 
 See [TESTING.md](TESTING.md) for the international, dynamic-page, privacy,
 and local-parser test checklist.
 
-## Planned next phase
+## Architecture
 
-The extension can later connect to the existing job-search agent system through a user-configured model gateway. That integration should send only the minimum page context, use the existing model router when needed, log proposed changes, and preserve the default policy of preparing actions for approval rather than submitting them automatically.
+```
+Popup / Profile / Workspace (extension pages)
+        │ chrome.runtime messages
+        ▼
+background.js ── scans and fills pages (all permitted frames), extracts job postings
+        │ fetch to 127.0.0.1 only
+        ▼
+local_service.py ── /extract (local resume parsing)
+                 └─ /agent/answer, /agent/analyze-job, /agent/materials
+                         │ agent.py: guardrails + structured tool calls
+                         ▼
+                    Anthropic Messages API (your key)
+```
+
+Pure logic lives in `src/` (field mapping, question bank, agent question building and answer application, tracker helpers) and is covered by `node --test`. The decision engine's guardrails are covered by `test/test_agent_service.py` with a fake transport.

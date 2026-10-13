@@ -1,16 +1,21 @@
 #!/usr/bin/env python3
-"""Local resume extraction helper for PDF/DOCX files.
+"""ApplyPilot local service: resume extraction plus the Claude decision engine.
 
-The browser extension sends the selected file to 127.0.0.1 only. This service
-does not contact a remote AI provider or persist uploaded files.
+The browser extension talks to 127.0.0.1 only. Resume extraction runs fully
+locally and never persists uploaded files. The optional AI agent (agent.py)
+calls the Anthropic API with the key from ANTHROPIC_API_KEY, so the key never
+lives in the browser; it is disabled when no key is set.
 """
 
 import base64
 import io
 import json
+import os
 import re
-from http.server import BaseHTTPRequestHandler, HTTPServer
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import PurePosixPath
+
+import agent
 
 MAX_UPLOAD_BYTES = 20 * 1024 * 1024
 
@@ -157,6 +162,30 @@ def extract_file(filename, data):
     raise RuntimeError("Supported resume formats are PDF, DOCX, TXT, and MD.")
 
 
+ALLOWED_HOSTS = {"127.0.0.1", "localhost", "[::1]", "::1"}
+MAX_AGENT_BYTES = 2 * 1024 * 1024
+AGENT_ROUTES = {
+    "/agent/answer": agent.answer_questions,
+    "/agent/analyze-job": agent.analyze_job,
+    "/agent/materials": agent.generate_materials,
+}
+
+
+def request_allowed(headers):
+    """Block web pages and DNS-rebinding attempts; allow the extension and local tools."""
+    host = (headers.get("Host") or "").strip().lower()
+    hostname = host.rsplit(":", 1)[0] if not host.startswith("[") else host.split("]")[0] + "]"
+    if hostname not in ALLOWED_HOSTS:
+        return False, "Requests must target 127.0.0.1 or localhost."
+    origin = (headers.get("Origin") or "").strip()
+    if origin and not origin.startswith("chrome-extension://"):
+        return False, "Only the ApplyPilot extension may call this service."
+    pinned = os.environ.get("APPLYPILOT_EXTENSION_ID", "").strip()
+    if pinned and origin and origin != f"chrome-extension://{pinned}":
+        return False, "This service is pinned to a different extension ID."
+    return True, ""
+
+
 class Handler(BaseHTTPRequestHandler):
     def _headers(self, status=200):
         self.send_response(status)
@@ -169,22 +198,53 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
         self.end_headers()
 
+    def _json(self, status, payload):
+        self._headers(status)
+        self.wfile.write(json.dumps(payload).encode())
+
     def do_GET(self):
-        if self.path != "/health":
-            self._headers(404)
-            self.wfile.write(json.dumps({"error": "Not found"}).encode())
+        if self.path == "/health":
+            self._json(200, {"status": "ok", "version": "2", "agent": agent.status()})
             return
-        self._headers()
-        self.wfile.write(json.dumps({"status": "ok", "version": "1"}).encode())
+        if self.path == "/agent/status":
+            self._json(200, agent.status())
+            return
+        self._json(404, {"error": "Not found"})
 
     def do_OPTIONS(self):
         self._headers()
 
     def do_POST(self):
-        if self.path != "/extract":
-            self._headers(404)
-            self.wfile.write(json.dumps({"error": "Not found"}).encode())
+        allowed, reason = request_allowed(self.headers)
+        if not allowed:
+            self._json(403, {"error": reason})
             return
+        if self.path == "/extract":
+            self._extract()
+            return
+        handler = AGENT_ROUTES.get(self.path)
+        if handler is None:
+            self._json(404, {"error": "Not found"})
+            return
+        if "application/json" not in (self.headers.get("Content-Type") or ""):
+            self._json(415, {"error": "Content-Type must be application/json."})
+            return
+        try:
+            length = int(self.headers.get("Content-Length", "0"))
+            if length <= 0 or length > MAX_AGENT_BYTES:
+                raise agent.AgentError("Request body is empty or larger than 2 MB.")
+            payload = json.loads(self.rfile.read(length))
+            if not isinstance(payload, dict):
+                raise agent.AgentError("Request body must be a JSON object.")
+            self._json(200, handler(payload))
+        except agent.AgentError as exc:
+            self._json(exc.status if 400 <= exc.status < 600 else 400, {"error": str(exc)})
+        except json.JSONDecodeError:
+            self._json(400, {"error": "Request body is not valid JSON."})
+        except Exception as exc:  # pragma: no cover - defensive
+            self._json(500, {"error": f"Agent failure: {exc}"})
+
+    def _extract(self):
         try:
             length = int(self.headers.get("Content-Length", "0"))
             if length < 0 or length > MAX_UPLOAD_BYTES * 2:
@@ -195,16 +255,25 @@ class Handler(BaseHTTPRequestHandler):
             if len(data) > MAX_UPLOAD_BYTES:
                 raise RuntimeError("Resume files must be 20 MB or smaller.")
             result = extract_file(filename, data)
-            self._headers()
-            self.wfile.write(json.dumps(result).encode())
+            self._json(200, result)
         except Exception as exc:
-            self._headers(400)
-            self.wfile.write(json.dumps({"error": str(exc)}).encode())
+            self._json(400, {"error": str(exc)})
 
     def log_message(self, *_args):
         return
 
 
+def main():
+    agent.load_env_file()
+    port = int(os.environ.get("APPLYPILOT_PORT", "8765"))
+    state = agent.status()
+    print(f"ApplyPilot local service listening on http://127.0.0.1:{port}")
+    if state["configured"]:
+        print(f"AI agent: enabled (model {state['model']})")
+    else:
+        print("AI agent: disabled. Set ANTHROPIC_API_KEY (shell or .env next to this file) and restart to enable it.")
+    ThreadingHTTPServer(("127.0.0.1", port), Handler).serve_forever()
+
+
 if __name__ == "__main__":
-    print("Local resume parser listening on http://127.0.0.1:8765")
-    HTTPServer(("127.0.0.1", 8765), Handler).serve_forever()
+    main()

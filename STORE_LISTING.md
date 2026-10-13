@@ -40,6 +40,10 @@ Privacy and control are built in:
 • PDF/DOCX extraction is optional and can use a local parser running on your
   own computer.
 • No resume or application data is sent to a developer-operated cloud service.
+• The optional AI agent runs through a local service on your computer with your
+  own Anthropic API key. It sends job text and your approved materials to the
+  Anthropic API only when you use an AI action, and never drafts sensitive
+  answers such as sponsorship, salary, or demographics.
 • Scanning requires an installer responsibility acknowledgment.
 • Every proposed value is reviewable before it is used.
 • The extension does not submit applications, bypass CAPTCHA, or automate file

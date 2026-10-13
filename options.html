@@ -29,7 +29,7 @@
           <input id="resumeInput" type="file" accept=".pdf,.docx,.txt,.md,.json,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/json,text/plain" />
           <button id="extractButton" class="secondary">Extract details</button>
         </div>
-        <label for="parserUrl">Optional local parser URL for PDF/DOCX</label>
+        <label for="parserUrl">Local service URL (PDF/DOCX parsing and the AI agent)</label>
         <input id="parserUrl" class="url-input" value="http://127.0.0.1:8765" />
         <p class="helper-text">TXT, Markdown, and JSON work inside the extension. PDF and DOCX use the optional local parser; it must be running on your computer.</p>
         <div class="parser-actions">
@@ -46,6 +46,36 @@
           <textarea id="proposalEditor" class="proposal" spellcheck="false" placeholder="Your extracted profile will appear here for review."></textarea>
         </details>
         <button id="approveProposalButton" class="primary">Approve reviewed details</button>
+      </section>
+      <section class="agent-settings">
+        <h2>2. AI agent (Claude)</h2>
+        <p>The local service can use Claude to draft answers to new questions, score your fit for a job, and write a tailored resume, cover letter, and outreach message. Your Anthropic API key stays in the local service on this computer and is never stored in the browser. Sensitive questions (work authorization, sponsorship, salary, demographics, legal consents) are never drafted.</p>
+        <div class="parser-actions">
+          <button id="checkAgentButton" class="secondary" type="button">Check AI agent</button>
+          <span id="agentStatus" class="status" aria-live="polite"></span>
+        </div>
+        <label for="resumeTextInput">Master resume (plain text)</label>
+        <p class="helper-text">Claude tailors from this text and never adds experience that is not here. It fills in automatically when you extract a resume above; you can edit it any time.</p>
+        <textarea id="resumeTextInput" class="medium" spellcheck="true" placeholder="Paste your full resume here, or extract one above."></textarea>
+        <label for="agentNotesInput">Facts and preferences for the agent</label>
+        <p class="helper-text">Anything true about you that your resume does not say, plus how you like to come across. Example: “About 10 years in cloud infrastructure. Prefer remote or DFW hybrid. Keep answers short and direct.” Do not put sensitive details here.</p>
+        <textarea id="agentNotesInput" class="small" spellcheck="true"></textarea>
+        <label class="ack-label"><input id="autoDraftCheckbox" type="checkbox" /> After a scan, automatically ask Claude to draft the remaining answers (you still review before anything is filled)</label>
+        <label for="minConfidenceSelect">Pre-select Claude drafts at or above this confidence</label>
+        <select id="minConfidenceSelect" class="url-input">
+          <option value="0.6">60%</option>
+          <option value="0.7">70% (default)</option>
+          <option value="0.8">80%</option>
+          <option value="0.9">90%</option>
+          <option value="1.01">Never pre-select</option>
+        </select>
+        <div class="actions">
+          <button id="saveAgentButton" class="primary" type="button">Save agent settings</button>
+          <button id="grantFramesButton" class="secondary" type="button">Allow embedded application forms</button>
+          <button id="openWorkspaceButton" class="secondary" type="button">Open workspace</button>
+        </div>
+        <p class="helper-text">Many company career pages embed Greenhouse, Lever, Workday, Ashby, and similar forms inside a frame. Allowing embedded forms lets ApplyPilot read and fill those frames when you open the extension; it still never reads pages on its own.</p>
+        <div id="agentSettingsStatus" class="status"></div>
       </section>
       <section class="question-bank">
         <h2>Discovered application questions</h2>

@@ -43,10 +43,25 @@ ambiguous controls rather than filling the wrong field.
 - Confirm files larger than 20 MB are rejected.
 - Confirm `/health` returns a local healthy response and no uploaded file is persisted.
 
+## AI agent cases
+
+Run the local service with a test API key (or the fake transport used in
+`test/test_agent_service.py`) and a synthetic profile and resume.
+
+1. **Check AI agent** in Profile reports the model. Without a key it explains how to set one.
+2. On a test form, **Draft answers** returns blue Claude cards with confidence and source. Nothing fills until **Fill selected** is confirmed.
+3. Questions about sponsorship, work authorization, salary, demographics, and consent checkboxes never receive a draft, and the service log shows they were never sent.
+4. A styled radio group (hidden native inputs, visible labels) is drafted as one question and the matching option is checked on fill.
+5. A posting containing "ignore previous instructions" text does not change the answers.
+6. **Analyze fit** logs the job in the Workspace with a score; opening the separate `/apply` page for the same posting reuses that record.
+7. **Mark applied** sets the status and date; Workspace CSV export opens cleanly in a spreadsheet (no formula execution).
+8. Workspace **Generate all three** produces a resume, cover letter, and outreach message, plus "What Claude changed" and "Not claimed" lists.
+9. A form embedded in a cross-origin frame fills after **Allow embedded application forms** is granted.
+
 ## Release checks
 
 ```bash
 npm test
 npm run public-scan
-python3 -m py_compile local_service.py
+python3 -m py_compile local_service.py agent.py
 ```
