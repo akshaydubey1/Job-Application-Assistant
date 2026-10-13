@@ -14,3 +14,4 @@ resumes/
 *.key
 *.p12
 *.pfx
+!.env.example
