@@ -33,6 +33,12 @@ locally in a reviewable question bank. Add an answer once, review it, and use it
 as a suggestion the next time the question appears. Sensitive questions are
 highlighted and are never answered by inference.
 
+Beyond autofill, the Workspace includes a Kanban job tracker with follow-up
+reminders, a networking contacts tracker, a free ATS resume checker, a LinkedIn
+profile optimizer, AI writing tools, mock interviews with scored feedback, a
+skill-gap planner, a document library with PDF and Word export, and insights
+on your response rate.
+
 Privacy and control are built in:
 
 • Profile, approved answers, and acknowledgment data stay in your browser's

@@ -37,7 +37,7 @@ footer a { color: #5367d9; text-decoration: none; }
 .chip { border-radius: 999px; background: #eef0f6; color: #475467; padding: 6px 8px; font-size: 10px; font-weight: 700; white-space: nowrap; }
 .chip.ready { background: #e8f7ee; color: #207547; }
 .chip.off { background: #fdf0e6; color: #a85c17; }
-.agent-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 8px; }
+.agent-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 8px; }
 .agent-bar button { padding: 8px 4px; font-size: 11px; }
 .field textarea { width: 100%; min-height: 72px; margin-top: 7px; padding: 7px; border: 1px solid #d7dce8; border-radius: 6px; background: #fff; font: inherit; font-size: 11px; resize: vertical; }
 .field.ai { border-left: 3px solid #5367d9; }
@@ -53,3 +53,6 @@ footer a { color: #5367d9; text-decoration: none; }
 .job-card ul { margin: 6px 0 0; padding-left: 16px; }
 .job-card .flag { color: #b42318; }
 .job-card .muted { color: #667085; }
+.linkedin-bar { display: grid; grid-template-columns: auto 1fr 1fr; gap: 6px; align-items: center; margin-top: 8px; padding: 8px; border: 1px solid #cfe0f3; border-radius: 10px; background: #f2f7fd; font-size: 11px; font-weight: 700; color: #0a4f8f; }
+.linkedin-bar button { padding: 7px 4px; font-size: 11px; }
+.due-link { display: block; width: 100%; margin-top: 8px; padding: 8px 10px; border-radius: 8px; background: #fdecea; color: #b42318; text-align: left; font-size: 11px; }

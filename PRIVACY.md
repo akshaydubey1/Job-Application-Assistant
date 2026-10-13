@@ -20,7 +20,13 @@ approves, including:
 - A master resume text and optional agent notes that the user enters for the
   optional AI agent.
 - An application tracker: company, role, posting URL, job-description text,
-  status, dates, fit analysis, tailored materials, and the user's notes.
+  status, dates, next steps, fit analysis, tailored materials, and notes.
+- Networking contacts the user adds or saves from a LinkedIn profile page:
+  name, title, company, LinkedIn URL, email if entered, stage, dates, notes.
+- Documents the user saves (resume versions, letters, messages) and interview
+  practice sessions (questions, the user's answers, and feedback).
+- The text of the user's own LinkedIn profile when they choose **Optimize
+  profile**, kept locally until replaced.
 
 Sensitive information, including work authorization, sponsorship, salary,
 demographic information, disability, veteran status, and similar eligibility
@@ -58,6 +64,18 @@ question-bank answers remain manual. Field matching for profile values uses loca
 rules and does not use an AI service. The extension does not submit applications, bypass
 CAPTCHA, automate file uploads, or make employment-eligibility decisions.
 
+## LinkedIn pages, reminders, and notifications
+
+ApplyPilot reads a LinkedIn profile page only when the user clicks **Optimize
+profile** or **Save contact** in the popup, using the same `activeTab` access
+as every other action. It does not crawl LinkedIn, run in the background on
+LinkedIn, or message anyone. Recruiter and hiring-manager search buttons open
+ordinary LinkedIn or Google search pages in a new tab.
+
+Follow-up reminders are computed locally. The extension uses Chrome alarms to
+check them hourly, shows a count on its toolbar icon, and, unless the user
+turns it off, shows a desktop notification for follow-ups due today.
+
 ## Optional AI agent
 
 The AI agent is off unless the user runs the local service with their own
@@ -71,6 +89,10 @@ it to the Anthropic API under the user's own account:
   the master resume text, the agent notes, and non-sensitive approved answers.
 - Draft answers: the same candidate context plus the prompts and visible
   choices of the remaining application questions on the page.
+- AI Studio, interview prep, and contact messages: the candidate context plus
+  what the user enters or selects for that tool (for example a job
+  description, LinkedIn profile text, an interview answer, or notes about a
+  contact).
 
 Work authorization, sponsorship, and salary values are removed from the profile
 before it is sent. Questions about work authorization, sponsorship, citizenship,

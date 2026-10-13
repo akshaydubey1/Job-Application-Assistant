@@ -5,14 +5,23 @@
  * when the person uses an AI agent action.
  */
 
+import { actionableCount, dueItems } from "./src/crm.mjs";
+import { createApplication, findApplicationForUrl, upsertApplication } from "./src/agent.mjs";
+
 const DEFAULT_SERVICE_URL = "http://127.0.0.1:8765";
+const REMINDER_ALARM = "applypilot-reminders";
 const AGENT_TIMEOUT_MS = 180000;
 const LOCAL_HOSTS = new Set(["127.0.0.1", "localhost", "[::1]", "::1"]);
-const AGENT_ENDPOINTS = new Set(["/agent/answer", "/agent/analyze-job", "/agent/materials"]);
+const AGENT_ENDPOINTS = new Set([
+  "/agent/answer", "/agent/analyze-job", "/agent/materials", "/agent/ats-review", "/agent/write",
+  "/agent/linkedin-review", "/agent/interview-questions", "/agent/interview-evaluate", "/agent/skill-gaps"
+]);
 
 chrome.runtime.onInstalled.addListener(({ reason }) => {
   if (reason === "install") chrome.runtime.openOptionsPage();
+  scheduleReminders();
 });
+chrome.runtime.onStartup.addListener(scheduleReminders);
 
 if (chrome.storage.local.setAccessLevel) {
   chrome.storage.local.setAccessLevel({ accessLevel: "TRUSTED_CONTEXTS" }).catch(() => {});
@@ -22,6 +31,9 @@ const HANDLERS = {
   scanActiveTab: () => scanActiveTab(),
   fillActiveTab: (message) => fillActiveTab(message.assignments || []),
   extractJob: () => extractJob(),
+  extractLinkedIn: () => extractLinkedIn(),
+  saveJob: () => saveCurrentJob(),
+  refreshReminders: () => refreshReminders({ notify: false }),
   agentCall: (message) => agentCall(message.endpoint, message.payload, message.cacheKey),
   agentHealth: () => agentHealth()
 };
@@ -100,6 +112,91 @@ async function extractJob() {
   if (!best) throw new Error("No job description text was found on this page.");
   return { ...best, url: tab.url || best.url || "", tabTitle: tab.title || "" };
 }
+
+async function extractLinkedIn() {
+  const tab = await getActiveTab();
+  if (!/^https:\/\/([a-z]+\.)?linkedin\.com\/in\//i.test(tab.url || "")) {
+    throw new Error("Open a LinkedIn profile page (linkedin.com/in/…) first.");
+  }
+  const [frame] = await chrome.scripting.executeScript({ target: { tabId: tab.id }, func: extractLinkedInProfile });
+  const data = frame?.result;
+  if (!data || (data.text || "").length < 80) throw new Error("Could not read this LinkedIn profile. Scroll the page once so all sections load, then try again.");
+  return { ...data, url: tab.url };
+}
+
+/* Save the posting on the current tab to the tracker without any AI call. */
+async function saveCurrentJob() {
+  const posting = await extractJob();
+  const { applications = [] } = await chrome.storage.local.get(["applications"]);
+  const existing = findApplicationForUrl(applications, posting.url);
+  const record = existing
+    ? {
+      ...existing,
+      jobText: (posting.text || "").length > (existing.jobText || "").length ? posting.text.slice(0, 20000) : existing.jobText,
+      // Structured JobPosting data is exact; otherwise keep what the person (or an analysis) already set.
+      company: (posting.source === "json-ld" && posting.company) || existing.company || posting.company || "",
+      role: (posting.source === "json-ld" && posting.title) || existing.role || posting.title || "",
+      location: existing.location || posting.location || "",
+      updatedAt: new Date().toISOString()
+    }
+    : createApplication({ url: posting.url, title: posting.title, company: posting.company, location: posting.location, text: posting.text });
+  await chrome.storage.local.set({ applications: upsertApplication(applications, record) });
+  return { record, existed: Boolean(existing) };
+}
+
+/* ---------------- Reminders: badge + notifications ---------------- */
+
+function scheduleReminders() {
+  chrome.alarms?.create(REMINDER_ALARM, { periodInMinutes: 60, delayInMinutes: 1 });
+  refreshReminders({ notify: false }).catch(() => {});
+}
+
+chrome.alarms?.onAlarm.addListener((alarm) => {
+  if (alarm.name === REMINDER_ALARM) refreshReminders({ notify: true }).catch(() => {});
+});
+
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === "local" && (changes.applications || changes.contacts)) refreshReminders({ notify: false }).catch(() => {});
+});
+
+chrome.notifications?.onClicked.addListener((id) => {
+  if (id.startsWith("applypilot:")) chrome.tabs.create({ url: chrome.runtime.getURL("workspace.html#/today") });
+});
+
+async function refreshReminders({ notify }) {
+  const { applications = [], contacts = [], notifiedReminders = {}, reminderSettings = {} } = await chrome.storage.local.get(["applications", "contacts", "notifiedReminders", "reminderSettings"]);
+  const items = dueItems({ applications, contacts }, new Date(), { staleAfterDays: reminderSettings.staleAfterDays || 7 });
+  const count = actionableCount(items);
+  await chrome.action.setBadgeBackgroundColor({ color: "#b42318" });
+  await chrome.action.setBadgeText({ text: count ? String(Math.min(count, 99)) : "" });
+  if (!notify || reminderSettings.notifications === false || !chrome.notifications) return { items, count };
+  const today = new Date().toISOString().slice(0, 10);
+  const fresh = items.filter((item) => (item.overdue || item.today) && notifiedReminders[`${item.kind}:${item.id}`] !== today);
+  if (fresh.length) {
+    chrome.notifications.create(`applypilot:${Date.now()}`, {
+      type: "basic",
+      iconUrl: "store-assets/icon128.png",
+      title: fresh.length === 1 ? "ApplyPilot follow-up due" : `${fresh.length} ApplyPilot follow-ups due`,
+      message: fresh.slice(0, 3).map((item) => item.title).join("\n"),
+      priority: 1
+    });
+    fresh.forEach((item) => { notifiedReminders[`${item.kind}:${item.id}`] = today; });
+    await chrome.storage.local.set({ notifiedReminders });
+  }
+  return { items, count };
+}
+
+chrome.commands?.onCommand.addListener((command) => {
+  if (command !== "save-job") return;
+  saveCurrentJob().then(({ record, existed }) => {
+    chrome.notifications?.create(`applypilot:saved:${Date.now()}`, {
+      type: "basic", iconUrl: "store-assets/icon128.png", title: existed ? "Job updated in ApplyPilot" : "Job saved to ApplyPilot",
+      message: [record.role, record.company].filter(Boolean).join(" · ") || record.url, priority: 0
+    });
+  }).catch((error) => {
+    chrome.notifications?.create(`applypilot:error:${Date.now()}`, { type: "basic", iconUrl: "store-assets/icon128.png", title: "Could not save this job", message: friendlyError(error), priority: 0 });
+  });
+});
 
 async function requireResponsibilityAcknowledgment() {
   const { responsibilityAck } = await chrome.storage.local.get(["responsibilityAck"]);
@@ -540,4 +637,29 @@ function extractJobPosting() {
     text: text(clone.innerText || clone.textContent || "").slice(0, 24000),
     url: window.location.href
   };
+}
+
+function extractLinkedInProfile() {
+  const clean = (value) => String(value || "").replace(/[ \t\u00a0]+/g, " ").replace(/\n\s*\n+/g, "\n").trim();
+  const sectionText = (id) => {
+    const anchor = document.getElementById(id);
+    const section = anchor?.closest("section");
+    if (!section) return "";
+    const copy = section.cloneNode(true);
+    copy.querySelectorAll(".visually-hidden, button, svg, img, script, style").forEach((node) => node.remove());
+    // LinkedIn repeats each text node for screen readers; keep the first copy of consecutive duplicates.
+    const lines = clean(copy.textContent).split("\n").map((line) => line.trim()).filter(Boolean);
+    return lines.filter((line, index) => line !== lines[index - 1]).join("\n").slice(0, 8000);
+  };
+  const top = document.querySelector("main section");
+  const name = clean(document.querySelector("main h1")?.innerText);
+  const headline = clean(top?.querySelector(".text-body-medium")?.innerText);
+  const location = clean(top?.querySelector(".text-body-small.inline, .text-body-small.t-black--light")?.innerText);
+  const ids = ["about", "featured", "experience", "education", "licenses_and_certifications", "skills", "projects", "volunteering_experience", "honors_and_awards", "recommendations"];
+  const sections = Object.fromEntries(ids.map((id) => [id, sectionText(id)]).filter(([, value]) => value));
+  const parts = [`Name: ${name}`, `Headline: ${headline}`, `Location: ${location}`]
+    .concat(Object.entries(sections).map(([id, value]) => `## ${id.replace(/_/g, " ")}\n${value}`));
+  let text = parts.join("\n\n");
+  if (Object.keys(sections).length < 2) text += `\n\n${clean(document.querySelector("main")?.innerText).slice(0, 16000)}`;
+  return { name, headline, location, sections, text: text.slice(0, 24000) };
 }

@@ -29,9 +29,19 @@
       <section class="agent-bar">
         <button id="analyzeButton" class="secondary" title="Read the job description on this page and score your fit">Analyze fit</button>
         <button id="draftButton" class="secondary" title="Let Claude draft answers for the remaining questions" disabled>Draft answers</button>
+        <button id="saveJobButton" class="secondary" title="Save this posting to your tracker (Alt+Shift+S)">Save job</button>
         <button id="appliedButton" class="secondary" title="Log this application as submitted">Mark applied</button>
-        <button id="workspaceButton" class="secondary" title="Tracker, fit analysis, and tailored materials">Workspace</button>
+        <button id="interviewButton" class="secondary" title="Practice likely interview questions for this job">Interview prep</button>
+        <button id="workspaceButton" class="secondary" title="Tracker, AI studio, contacts, documents, insights">Workspace</button>
       </section>
+
+      <section id="linkedinBar" class="linkedin-bar hidden">
+        <span>LinkedIn profile</span>
+        <button id="linkedinOptimizeButton" class="secondary" title="Score this profile and get rewrites (use on your own profile)">Optimize profile</button>
+        <button id="linkedinContactButton" class="secondary" title="Save this person to your networking contacts">Save contact</button>
+      </section>
+
+      <button id="dueLink" class="due-link hidden"></button>
 
       <p id="status" class="status" aria-live="polite">Ready. Add your approved profile, then scan an application page.</p>
 

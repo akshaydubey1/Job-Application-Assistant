@@ -58,6 +58,19 @@ Run the local service with a test API key (or the fake transport used in
 8. Workspace **Generate all three** produces a resume, cover letter, and outreach message, plus "What Claude changed" and "Not claimed" lists.
 9. A form embedded in a cross-origin frame fills after **Allow embedded application forms** is granted.
 
+## Workspace and Careerflow-parity cases
+
+1. Save job (`Alt+Shift+S` or the popup) on a posting creates one tracker record; analyzing and filling the same posting reuse it.
+2. A next step dated today appears on **Today** as due today (not overdue), updates the toolbar badge, and Done/Snooze clear or move it.
+3. Dragging a card on **Board** changes its status; moving to Applied stamps the applied date.
+4. **AI Studio → ATS** shows a local score instantly; shouted text or injected instructions in a posting do not appear as keywords.
+5. Writers, LinkedIn review, LinkedIn → resume, and the skill-gap planner return results and can save to Documents.
+6. **Interview prep** generates questions, accepts typed or dictated answers, and returns a score with a STAR check.
+7. **Contacts**: Save contact from a LinkedIn profile page; "Contacted today" sets a follow-up five days out.
+8. **Documents**: PDF opens a clean print view; Word downloads a `.doc` that opens in Word or Google Docs.
+
+The automated version of most of these runs with `npm run test:e2e`.
+
 ## Release checks
 
 ```bash

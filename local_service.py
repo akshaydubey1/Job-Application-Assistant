@@ -168,6 +168,12 @@ AGENT_ROUTES = {
     "/agent/answer": agent.answer_questions,
     "/agent/analyze-job": agent.analyze_job,
     "/agent/materials": agent.generate_materials,
+    "/agent/ats-review": agent.ats_review,
+    "/agent/write": agent.write,
+    "/agent/linkedin-review": agent.linkedin_review,
+    "/agent/interview-questions": agent.interview_questions,
+    "/agent/interview-evaluate": agent.interview_evaluate,
+    "/agent/skill-gaps": agent.skill_gaps,
 }
 
 

@@ -7,53 +7,29 @@
     <link rel="stylesheet" href="workspace.css" />
   </head>
   <body>
-    <header class="topbar">
-      <div>
-        <p class="eyebrow">APPLYPILOT WORKSPACE</p>
-        <h1>Applications</h1>
-      </div>
-      <div class="topbar-actions">
-        <span id="agentChip" class="chip">Checking agent…</span>
-        <button id="newButton" class="primary">Add a job</button>
-        <button id="csvButton" class="secondary">Export CSV</button>
-        <button id="backupButton" class="secondary">Backup JSON</button>
-        <button id="restoreButton" class="secondary">Restore</button>
-        <input id="restoreInput" type="file" accept="application/json" hidden />
-      </div>
-    </header>
-
-    <section class="stats" id="stats"></section>
-
-    <div class="layout">
-      <aside class="list-pane">
-        <div class="filters">
-          <input id="searchInput" type="search" placeholder="Search company or role" />
-          <select id="statusFilter"><option value="">All statuses</option></select>
+    <div class="app">
+      <nav class="sidebar" aria-label="Workspace">
+        <div class="brand">
+          <p class="eyebrow">APPLYPILOT</p>
+          <strong>Workspace</strong>
         </div>
-        <div id="appList" class="app-list"></div>
-      </aside>
-
-      <main id="detail" class="detail">
-        <div class="empty">Select an application, or choose <strong>Add a job</strong> to paste a job description.</div>
-      </main>
+        <a href="#/today" data-route="today">Today <span id="dueCount" class="nav-count hidden"></span></a>
+        <a href="#/apps" data-route="apps">Applications</a>
+        <a href="#/board" data-route="board">Board</a>
+        <a href="#/contacts" data-route="contacts">Contacts</a>
+        <a href="#/interview" data-route="interview">Interview prep</a>
+        <a href="#/studio" data-route="studio">AI Studio</a>
+        <a href="#/docs" data-route="docs">Documents</a>
+        <a href="#/insights" data-route="insights">Insights</a>
+        <div class="sidebar-foot">
+          <span id="agentChip" class="chip">Checking agent…</span>
+          <a id="profileLink" href="options.html" target="_blank">Profile & settings</a>
+        </div>
+      </nav>
+      <main id="view" class="view" tabindex="-1"></main>
     </div>
 
-    <dialog id="newDialog">
-      <form id="newForm" method="dialog">
-        <h2>Add a job</h2>
-        <p class="muted">Paste a posting from anywhere (LinkedIn, Work at a Startup, an email). Claude analyzes it right after you save.</p>
-        <div class="grid2">
-          <label>Company<input name="company" /></label>
-          <label>Role<input name="role" /></label>
-        </div>
-        <label>Posting URL<input name="url" type="url" placeholder="https://" /></label>
-        <label>Job description<textarea name="text" rows="12" required minlength="80"></textarea></label>
-        <div class="dialog-actions">
-          <button value="cancel" class="secondary" formnovalidate>Cancel</button>
-          <button id="newSave" value="save" class="primary">Save and analyze</button>
-        </div>
-      </form>
-    </dialog>
+    <dialog id="dialog"><div id="dialogBody"></div></dialog>
 
     <script type="module" src="workspace.js"></script>
   </body>

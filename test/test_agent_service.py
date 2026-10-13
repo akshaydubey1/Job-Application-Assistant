@@ -153,3 +153,66 @@ class RequestGuardTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class StudioToolTests(unittest.TestCase):
+    def setUp(self):
+        os.environ["ANTHROPIC_API_KEY"] = "test-placeholder"
+
+    def tearDown(self):
+        os.environ.pop("ANTHROPIC_API_KEY", None)
+
+    JOB = {"text": "Platform engineer running Kubernetes and Terraform. " * 10}
+    RESUME = "Jordan Example. Senior cloud engineer. Ran GKE clusters, Terraform, Argo CD. " * 10
+
+    def test_ats_review_requires_inputs_and_clamps(self):
+        with self.assertRaises(agent.AgentError):
+            agent.ats_review({"resumeText": "short", "job": self.JOB})
+        send = fake_transport({"score": 150, "summary": "s", "missing_keywords": [], "bullet_rewrites": [], "summary_rewrite": "x", "formatting_issues": []})
+        result = agent.ats_review({"resumeText": self.RESUME, "job": self.JOB, "localCheck": {"score": 60}}, transport=send)
+        self.assertEqual(result["score"], 100)
+        self.assertIn("<local_keyword_check>", send.calls[0]["messages"][0]["content"])
+
+    def test_write_kinds(self):
+        with self.assertRaises(agent.AgentError):
+            agent.write({"kind": "nonsense"})
+        with self.assertRaises(agent.AgentError):
+            agent.write({"kind": "bullets", "input": ""})
+        send = fake_transport({"variants": [{"label": "A", "text": "Cut deploy time 60%"}, {"label": "B", "text": ""}], "notes": "Verify numbers"})
+        result = agent.write({"kind": "bullets", "input": "moved services to GKE"}, transport=send)
+        self.assertEqual(len(result["variants"]), 1)
+        self.assertEqual(result["title"], "Resume bullets")
+        self.assertIn("<input>", send.calls[0]["messages"][0]["content"])
+        empty = fake_transport({"variants": [], "notes": ""})
+        with self.assertRaises(agent.AgentError):
+            agent.write({"kind": "summary"}, transport=empty)
+
+    def test_linkedin_review(self):
+        with self.assertRaises(agent.AgentError):
+            agent.linkedin_review({"linkedin": "too short"})
+        send = fake_transport({"score": -5, "summary": "s", "checklist": [], "headline_options": [], "about_rewrite": "", "skills_to_add": [], "experience_suggestions": [], "target_keywords": []})
+        result = agent.linkedin_review({"linkedin": "Headline: Cloud engineer\n" * 20, "targetRole": "SRE"}, transport=send)
+        self.assertEqual(result["score"], 0)
+        self.assertIn("<linkedin_profile>", send.calls[0]["messages"][0]["content"])
+
+    def test_interview_questions_and_evaluation(self):
+        send = fake_transport({"questions": [{"question": "Tell me about an outage", "type": "behavioral", "why_they_ask": "", "what_good_looks_like": "", "story_hint": ""}, {"question": ""}],
+                               "prep_brief": {"likely_focus": [], "stories_to_prepare": [], "questions_to_ask_them": [], "risks_to_address": []}})
+        result = agent.interview_questions({"job": self.JOB, "count": 50}, transport=send)
+        self.assertEqual([q["id"] for q in result["questions"]], ["q1"])
+        self.assertIn("Create 15", send.calls[0]["messages"][0]["content"])
+        with self.assertRaises(agent.AgentError):
+            agent.interview_evaluate({"question": "Q", "answer": "short"})
+        ev = fake_transport({"score": 42, "verdict": "v", "strengths": [], "improvements": [], "star": {"situation": True, "task": True, "action": True, "result": False}, "delivery": "", "improved_answer": "", "follow_up_question": ""})
+        self.assertEqual(agent.interview_evaluate({"question": "Q", "answer": "I led the incident response and we restored service."}, transport=ev)["score"], 10)
+
+    def test_skill_gaps(self):
+        with self.assertRaises(agent.AgentError):
+            agent.skill_gaps({"jobs": []})
+        send = fake_transport({"summary": "s", "gaps": [], "quick_wins": []})
+        agent.skill_gaps({"jobs": [{"role": "SRE", "unmet": ["Go"], "gaps": ["Go"]}]}, transport=send)
+        self.assertIn("<target_jobs>", send.calls[0]["messages"][0]["content"])
+
+    def test_all_routes_registered(self):
+        for route in ["/agent/ats-review", "/agent/write", "/agent/linkedin-review", "/agent/interview-questions", "/agent/interview-evaluate", "/agent/skill-gaps"]:
+            self.assertIn(route, local_service.AGENT_ROUTES)

@@ -5,6 +5,7 @@ import {
   pageKey, toAgentPayloadQuestions, updateApplication, upsertApplication
 } from "./src/agent.mjs";
 import { getAgentSettings, getApplications, loadAgentContext, mutateApplications, sendToBackground } from "./src/store.mjs";
+import { createContact, dueItems } from "./src/crm.mjs";
 
 const DRAFT_CACHE_MS = 2 * 60 * 60 * 1000;
 const state = {
@@ -38,11 +39,19 @@ document.addEventListener("DOMContentLoaded", async () => {
   $("draftButton").addEventListener("click", () => draftAnswers());
   $("appliedButton").addEventListener("click", markApplied);
   $("workspaceButton").addEventListener("click", () => openWorkspace());
+  $("saveJobButton").addEventListener("click", saveJob);
+  $("interviewButton").addEventListener("click", interviewPrep);
+  $("linkedinOptimizeButton").addEventListener("click", optimizeLinkedIn);
+  $("linkedinContactButton").addEventListener("click", saveLinkedInContact);
+  $("dueLink").addEventListener("click", () => { chrome.tabs.create({ url: chrome.runtime.getURL("workspace.html#/today") }); window.close(); });
   $("scanButton").disabled = !state.acknowledged;
   $("scanButton").textContent = state.settings.autoAssist ? "Scan & fill approved fields" : "Scan current page";
 
   checkAgent();
   showJobCardForActiveTab();
+  showDueReminders();
+  const onLinkedInProfile = /^https:\/\/([a-z]+\.)?linkedin\.com\/in\//i.test((await activeTabInfo()).url);
+  $("linkedinBar").classList.toggle("hidden", !onLinkedInProfile);
   if (!state.acknowledged) setStatus("Complete the installer responsibility acknowledgment in Profile before scanning or filling.", true);
   else if (hasProfileValue && state.settings.autoAssist) setTimeout(() => scan({ automatic: true }), 120);
 });
@@ -493,10 +502,76 @@ async function markApplied() {
   }
 }
 
+async function showDueReminders() {
+  const { applications = [], contacts = [] } = await chrome.storage.local.get(["applications", "contacts"]);
+  const items = dueItems({ applications, contacts }).filter((item) => item.overdue || item.today);
+  if (!items.length) return;
+  $("dueLink").textContent = `${items.length} follow-up${items.length === 1 ? "" : "s"} due: ${items[0].title}${items.length > 1 ? " …" : ""}`;
+  $("dueLink").classList.remove("hidden");
+}
+
+async function saveJob() {
+  setBusy(true);
+  setStatus("Saving this job to your tracker…");
+  try {
+    const { record, existed } = await sendToBackground({ type: "saveJob" });
+    renderJobCard(record);
+    setStatus(`${existed ? "Updated" : "Saved"} ${[record.role, record.company].filter(Boolean).join(" at ") || "this job"}. Analyze fit when you're ready, or open the Workspace.`);
+  } catch (error) {
+    setStatus(error.message, true);
+  } finally {
+    setBusy(false);
+  }
+}
+
+async function interviewPrep() {
+  const tab = await activeTabInfo();
+  let record = /^https?:/i.test(tab.url) ? findApplicationForUrl(await getApplications(), tab.url) : null;
+  if (!record && /^https?:/i.test(tab.url)) {
+    try { record = (await sendToBackground({ type: "saveJob" })).record; } catch { /* open the interview view without a job */ }
+  }
+  chrome.tabs.create({ url: chrome.runtime.getURL(`workspace.html#/interview${record ? `/${record.id}` : ""}`) });
+}
+
+async function optimizeLinkedIn() {
+  setStatus("Reading this LinkedIn profile…");
+  try {
+    const profile = await sendToBackground({ type: "extractLinkedIn" });
+    await chrome.storage.local.set({ linkedinSnapshot: { ...profile, capturedAt: new Date().toISOString() } });
+    chrome.tabs.create({ url: chrome.runtime.getURL("workspace.html#/studio/linkedin") });
+  } catch (error) {
+    setStatus(error.message, true);
+  }
+}
+
+async function saveLinkedInContact() {
+  setStatus("Reading this LinkedIn profile…");
+  try {
+    const profile = await sendToBackground({ type: "extractLinkedIn" });
+    const [title, company] = splitHeadline(profile.headline, profile.sections?.experience);
+    const { contacts = [] } = await chrome.storage.local.get(["contacts"]);
+    const url = profile.url.split("?")[0];
+    if (contacts.some((item) => item.linkedin && item.linkedin.split("?")[0] === url)) return setStatus(`${profile.name} is already in your contacts.`);
+    const contact = createContact({ name: profile.name, title, company, linkedin: url, relationship: /recruit|talent/i.test(profile.headline) ? "Recruiter" : /manager|director|head|vp/i.test(profile.headline) ? "Hiring manager" : "Peer", notes: profile.headline });
+    await chrome.storage.local.set({ contacts: [contact, ...contacts] });
+    setStatus(`Saved ${profile.name} to Contacts. Set a follow-up date in the Workspace.`);
+  } catch (error) {
+    setStatus(error.message, true);
+  }
+}
+
+function splitHeadline(headline = "", experience = "") {
+  const match = String(headline).match(/^(.*?)\s+(?:at|@)\s+(.+?)(?:\s*[|·,-].*)?$/i);
+  if (match) return [match[1].trim(), match[2].trim()];
+  const lines = String(experience).split("\n").map((line) => line.trim()).filter(Boolean);
+  const company = (lines[2] || "").split("·")[0].trim();
+  return [String(headline).split("|")[0].trim(), company];
+}
+
 async function openWorkspace() {
   const tab = await activeTabInfo();
   const record = /^https?:/i.test(tab.url) ? findApplicationForUrl(await getApplications(), tab.url) : null;
-  chrome.tabs.create({ url: chrome.runtime.getURL(`workspace.html${record ? `#${record.id}` : ""}`) });
+  chrome.tabs.create({ url: chrome.runtime.getURL(`workspace.html#/apps${record ? `/${record.id}` : ""}`) });
 }
 
 /* ------------------------------------------------------------------ */
@@ -505,7 +580,7 @@ async function openWorkspace() {
 
 function setBusy(busy) {
   state.busy = busy;
-  ["analyzeButton", "appliedButton", "scanButton"].forEach((id) => { $(id).disabled = busy || (id === "scanButton" && !state.acknowledged); });
+  ["analyzeButton", "appliedButton", "scanButton", "saveJobButton"].forEach((id) => { $(id).disabled = busy || (id === "scanButton" && !state.acknowledged); });
   updateDraftButton();
 }
 
